@@ -1,0 +1,941 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="テルグ語ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>:root{padding-top:env(safe-area-inset-top,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
+<title>テルグ語ドリル</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;700&display=swap">
+<style>
+/* 白い地に青を主役1色。正解=緑、まちがい=赤、XP・連続日数=黄。レッスンは全画面カード＋下の大きなボタン */
+:root{
+  --bg:#ffffff; --surface:#f4f6fa; --card:#ffffff; --ink:#111827; --sub:#6b7280; --line:#e5e7eb; --line2:#d1d5db;
+  --primary:#2cb34a; --primary-dark:#1f8f39; --primary-soft:#e6f7ea; --sky:#1cb0f6; --sky-dark:#1287c2; --sky-soft:#e3f5fe; --on-primary:#ffffff;
+  --gold:#ffb800; --gold-dark:#d99a00; --gold-soft:#fff6d6;
+  --ok:#16a34a; --ok-dark:#11803a; --ok-soft:#dcfce7; --bad:#e5383b; --bad-dark:#b8282b; --bad-soft:#fee2e2;
+  --g-v:#1d6bff; --g-t:#ea7a00; --g-p:#16a34a; --g-c:#8b3ff0; --g-q:#0891b2; --g-n:#e5383b; --g-h:#a16207; --g-m:#db2777;
+  --p1:#0ea5e9; --p2:#22c55e; --p3:#1d6bff; --p4:#8b5cf6; --p5:#f97316;
+  --f-ui:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  --f-te:"Noto Sans Telugu","Kohinoor Telugu","Telugu Sangam MN",sans-serif;
+  --f-ro:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b0f17; --surface:#141a24; --card:#161d29; --ink:#f3f4f6; --sub:#9ca3af; --line:#253041; --line2:#334155;
+  --primary:#3ccf5c; --primary-dark:#279c42; --primary-soft:#123620; --sky:#38bdf8; --sky-dark:#1a8fc7; --sky-soft:#10283a; --on-primary:#ffffff;
+  --gold:#ffc53d; --gold-dark:#d9a21f; --gold-soft:#3a2f12;
+  --ok:#34d073; --ok-dark:#22a85a; --ok-soft:#0f2e1c; --bad:#ff5c5f; --bad-dark:#d94043; --bad-soft:#3a1517;
+  --g-v:#6ea2ff; --g-t:#ffa24a; --g-p:#4ade80; --g-c:#b794ff; --g-q:#38c6e0; --g-n:#ff6b6e; --g-h:#e6b24a; --g-m:#f472b6;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0f17; --surface:#141a24; --card:#161d29; --ink:#f3f4f6; --sub:#9ca3af; --line:#253041; --line2:#334155;
+  --primary:#3ccf5c; --primary-dark:#279c42; --primary-soft:#123620; --sky:#38bdf8; --sky-dark:#1a8fc7; --sky-soft:#10283a; --on-primary:#ffffff;
+  --gold:#ffc53d; --gold-dark:#d9a21f; --gold-soft:#3a2f12;
+  --ok:#34d073; --ok-dark:#22a85a; --ok-soft:#0f2e1c; --bad:#ff5c5f; --bad-dark:#d94043; --bad-soft:#3a1517;
+  --g-v:#6ea2ff; --g-t:#ffa24a; --g-p:#4ade80; --g-c:#b794ff; --g-q:#38c6e0; --g-n:#ff6b6e; --g-h:#e6b24a; --g-m:#f472b6;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-weight:400;font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-user-select:none;user-select:none}
+.te{font-family:var(--f-te);font-weight:500}
+.ro{font-family:var(--f-ro);color:var(--sub);font-size:.82em;letter-spacing:.01em}
+.g-v{color:var(--g-v)}.g-t{color:var(--g-t)}.g-p{color:var(--g-p)}.g-c{color:var(--g-c)}.g-q{color:var(--g-q)}.g-n{color:var(--g-n)}.g-h{color:var(--g-h)}.g-m{color:var(--g-m)}
+.te [class^="g-"]{font-weight:700}
+body.no-ro .ro{display:none}
+#app{height:100%;display:flex;flex-direction:column;max-width:600px;margin:0 auto}
+.view{flex:1;overflow-y:auto;padding:8px max(20px,env(safe-area-inset-right,0px)) 32px max(20px,env(safe-area-inset-left,0px))}
+.muted{color:var(--sub);font-size:15px}
+
+/* 上のバー */
+.top{display:flex;align-items:center;gap:18px;padding:10px max(20px,env(safe-area-inset-right,0px)) 10px max(20px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.chip{display:flex;align-items:center;gap:6px;font-weight:800;font-family:var(--f-ro);font-size:17px}
+.chip .muted{font-size:13px;font-weight:600}
+.flame{width:24px;height:24px}
+.ring{width:28px;height:28px}
+.top .grow{flex:1}
+.iconbtn{background:none;border:0;padding:6px;border-radius:12px;color:var(--sub);min-width:44px;min-height:44px;display:grid;place-items:center}
+.iconbtn svg{width:26px;height:26px;display:block}
+.robtn{border:2px solid var(--line);border-radius:10px;padding:2px 8px;font-family:var(--f-ro);font-weight:800;font-size:13px;color:var(--sub);background:var(--bg)}
+.robtn.on{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+
+/* 下のタブ */
+.tabs{display:flex;border-top:1px solid var(--line);background:var(--bg);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs button{flex:1;background:none;border:0;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--sub);position:relative}
+.tabs button svg{width:27px;height:27px}
+.tabs button.on{color:var(--primary)}
+.badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:0 6px;font-family:var(--f-ro);font-weight:800;line-height:18px}
+
+/* ボタン（立体） */
+.btn{border:0;border-radius:16px;padding:15px 18px;font-weight:800;font-size:17px;letter-spacing:.02em;background:var(--primary);color:var(--on-primary);box-shadow:0 4px 0 var(--primary-dark);min-height:52px;transition:transform .05s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--primary-dark)}
+.btn.white{background:#fff;color:var(--primary);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.btn.ghost{background:var(--bg);color:var(--primary);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn:disabled{background:var(--line);color:var(--sub);box-shadow:none}
+.pill{border:2px solid var(--line);background:var(--bg);border-radius:14px;padding:9px 14px;font-size:15px;font-weight:700;color:var(--ink);box-shadow:0 3px 0 var(--line)}
+
+/* ホーム：今のユニットの帯と、道のように並ぶレッスン */
+.banner{border-radius:20px;padding:18px 18px 16px;color:#fff;display:flex;flex-direction:column;gap:4px;margin:12px 0 6px;position:relative;overflow:hidden}
+.banner .eyebrow{font-size:13px;font-weight:800;opacity:.9;letter-spacing:.04em}
+.banner b{font-size:22px;line-height:1.35}
+.banner small{font-size:14px;opacity:.92}
+.banner .actions{display:flex;gap:10px;margin-top:12px}
+.banner .actions .btn{flex:1}
+.path{display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 0 10px}
+.node{width:76px;height:70px;border-radius:50%;border:0;display:grid;place-items:center;font-weight:900;font-size:22px;font-family:var(--f-ro);background:var(--line);color:var(--sub);box-shadow:0 7px 0 var(--line2);position:relative}
+.node svg{width:30px;height:30px}
+.node.done{background:var(--gold);color:#fff;box-shadow:0 7px 0 var(--gold-dark)}
+.node.next{background:var(--primary);color:#fff;box-shadow:0 7px 0 var(--primary-dark)}
+.node.next::after{content:"スタート";position:absolute;top:-34px;background:var(--bg);color:var(--primary);border:2px solid var(--line);border-radius:12px;padding:2px 10px;font-size:13px;font-family:var(--f-ui);font-weight:800;white-space:nowrap;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.node .cap{position:absolute;bottom:-26px;font-size:12px;color:var(--sub);white-space:nowrap;font-family:var(--f-ui);font-weight:700}
+.unitbar{display:flex;gap:10px;margin:18px 0 8px}
+.unitbar .pill{flex:1;text-align:center}
+.sec{margin:26px 0 10px;font-weight:800;font-size:14px;color:var(--sub);letter-spacing:.04em}
+.ulist{display:flex;flex-direction:column;gap:10px}
+.urow{display:flex;gap:14px;align-items:center;border:2px solid var(--line);border-radius:18px;padding:12px 14px;background:var(--bg);text-align:left;width:100%;box-shadow:0 3px 0 var(--line)}
+.urow.cur{border-color:var(--primary)}
+.unit-no{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:900;color:#fff;font-family:var(--f-ro);flex:none;font-size:18px}
+.unit-t{flex:1;min-width:0}
+.unit-t b{display:block;font-size:16px;line-height:1.35}
+.unit-t small{color:var(--sub);font-size:13px}
+.prog{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--gold);border-radius:4px}
+
+/* 一覧・カード */
+h1.vt{font-size:26px;margin:14px 0 14px;font-weight:800}
+.card{background:var(--bg);border:2px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+.card > b{font-size:17px}
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{border:2px solid var(--line);border-radius:18px;padding:12px 6px;text-align:center}
+.stat b{display:block;font-size:26px;font-family:var(--f-ro);font-variant-numeric:tabular-nums;font-weight:800}
+.stat small{color:var(--sub);font-size:12px;font-weight:700}
+.li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:0}
+.li .grow{flex:1;min-width:0}
+.li .te{font-size:22px}
+.li small{color:var(--sub);display:block;font-size:14px}
+.spk{border:0;background:var(--sky-soft);color:var(--sky);border-radius:14px;width:44px;height:44px;display:grid;place-items:center;flex:none}
+.spk svg{width:24px;height:24px}
+.seg{display:flex;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:14px;gap:4px}
+.seg button{flex:1;border:0;background:none;padding:10px 6px;border-radius:11px;font-weight:800;font-size:15px;color:var(--sub)}
+.seg button.on{background:var(--bg);color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.deck{display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 3px 0 var(--line)}
+.deck .num{font-family:var(--f-ro);font-weight:800;width:70px;font-size:14px;color:var(--sub);line-height:1.3}
+.dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+.dots i{width:7px;height:7px;border-radius:2px;background:var(--line)}
+.dots i.k1{background:#bcd2ff}.dots i.k2{background:#77a5ff}.dots i.k3{background:var(--primary)}
+
+/* レッスン画面 */
+.sess{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;z-index:20;max-width:600px;margin:0 auto;padding-top:env(safe-area-inset-top,0px)}
+.sess-top{display:flex;align-items:center;gap:12px;padding:10px max(20px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px))}
+.sbar{flex:1;height:16px;background:var(--line);border-radius:8px;overflow:hidden}
+.sbar i{display:block;height:100%;background:var(--ok);border-radius:8px;transition:width .35s;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)}
+.combo{font-family:var(--f-ro);font-weight:900;color:var(--gold-dark);font-size:16px;min-width:36px;text-align:right}
+.sbody{flex:1;overflow-y:auto;padding:14px max(20px,env(safe-area-inset-right,0px)) 18px max(20px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.qtitle{font-weight:800;font-size:22px;line-height:1.4}
+.qhint{color:var(--sub);font-size:15px}
+.prompt{display:flex;align-items:center;gap:14px;padding:6px 0}
+.prompt .te{font-size:34px;line-height:1.35}
+.prompt .ro{font-size:16px}
+.prompt-ja{font-size:22px;font-weight:700;line-height:1.5;padding:4px 0}
+.bigspk{width:96px;height:96px;border-radius:28px;border:0;background:var(--sky);color:#fff;display:grid;place-items:center;box-shadow:0 6px 0 var(--sky-dark);flex:none}
+.bigspk svg{width:40px;height:40px}
+.slow{width:56px;height:56px;border-radius:18px;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;color:var(--sky);box-shadow:0 4px 0 var(--line)}
+.slow svg{width:28px;height:28px}
+.listen-c{display:flex;gap:16px;align-items:center;justify-content:center;padding:20px 0}
+.opts{display:grid;gap:12px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:18px;padding:14px 16px;text-align:left;box-shadow:0 4px 0 var(--line);display:flex;gap:12px;align-items:center;min-height:60px;font-size:18px;font-weight:600}
+.opt .k{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);display:grid;place-items:center;font-size:14px;font-family:var(--f-ro);color:var(--sub);flex:none;font-weight:800}
+.opt .te{font-size:23px}
+.opt.sel{border-color:var(--sky);background:var(--sky-soft);box-shadow:0 4px 0 var(--sky)}
+.opt.sel .k{border-color:var(--sky);color:var(--sky)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft);box-shadow:0 4px 0 var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft);box-shadow:0 4px 0 var(--bad)}
+.answer-area{min-height:124px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;padding:10px 0;
+  background:repeating-linear-gradient(transparent 0 60px,var(--line) 60px 62px)}
+.bank{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding-top:8px}
+.tile{border:2px solid var(--line);background:var(--bg);border-radius:14px;padding:8px 12px;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.tile .te{font-size:22px}
+.tile .ro{font-size:12px}
+.tile.used{background:var(--line);box-shadow:none;border-color:var(--line)}
+.tile.used *{visibility:hidden}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pairs .opt{justify-content:center;text-align:center;min-height:70px;font-size:16px}
+.pairs .opt.gone{opacity:.25;pointer-events:none;box-shadow:none;transition:opacity .3s}
+.intro{border:2px solid var(--line);border-radius:24px;padding:24px 20px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.intro .te{font-size:52px;line-height:1.3}
+.intro .ro{font-size:20px}
+.intro .ja{font-size:24px;font-weight:800}
+.intro .note{font-size:14px;color:var(--sub)}
+.newtag{align-self:flex-start;background:var(--gold-soft);color:var(--gold-dark);font-weight:800;font-size:13px;border-radius:10px;padding:4px 10px}
+.exbox{border-top:2px solid var(--line);padding-top:14px;width:100%;display:flex;gap:12px;align-items:center;text-align:left}
+.exbox .te{font-size:22px}
+.gloss{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center}
+.gloss>span{display:flex;flex-direction:column;align-items:center;font-size:13px;color:var(--sub)}
+.gloss>span .te{font-size:26px;color:var(--ink)}
+.dlg{display:flex;flex-direction:column;gap:12px}
+.bub{max-width:88%;padding:12px 14px;border-radius:18px;border:2px solid var(--line);cursor:pointer}
+.bub.me{align-self:flex-end;background:var(--primary-soft);border-color:var(--primary-soft)}
+.bub .who{font-size:12px;color:var(--sub);font-weight:700}
+.bub .te{font-size:21px}
+.bub .ja{font-size:14px;color:var(--sub)}
+.selfgrade{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.reveal{border:2px solid var(--line);border-radius:18px;padding:16px}
+.reveal .te{font-size:24px}
+.foot{padding:14px max(20px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));border-top:2px solid var(--line);background:var(--bg)}
+.foot .btn{width:100%}
+.foot.ok{background:var(--ok-soft);border-color:transparent}
+.foot.bad{background:var(--bad-soft);border-color:transparent}
+.fb{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.fb-t{font-weight:900;font-size:22px}
+.foot.ok .fb-t{color:var(--ok-dark)} .foot.bad .fb-t{color:var(--bad-dark)}
+.foot.ok .btn{background:var(--ok);box-shadow:0 4px 0 var(--ok-dark);color:#fff}
+.foot.bad .btn{background:var(--bad);box-shadow:0 4px 0 var(--bad-dark);color:#fff}
+.fb .te{font-size:22px}
+.fb small{display:block;color:var(--ink);font-size:15px}
+.done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px}
+.done h2{font-size:28px;margin:0}
+.done .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.done .stat:nth-child(1) b{color:var(--gold-dark)} .done .stat:nth-child(2) b{color:var(--ok)} .done .stat:nth-child(3) b{color:var(--primary)}
+.burst{font-size:60px;line-height:1.2;font-family:var(--f-te);font-weight:700;color:var(--primary)}
+.points{display:flex;flex-direction:column;gap:12px}
+.points .card h3{margin:0 0 8px;font-size:17px}
+.points .card{font-size:16px;line-height:1.8}
+.points .il-ro{font-size:.8em;color:var(--sub);margin-left:3px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.toggle:last-child{border-bottom:0}
+.switch{width:52px;height:32px;border-radius:16px;background:var(--line2);border:0;position:relative;flex:none}
+.switch::after{content:"";position:absolute;width:26px;height:26px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch.on{background:var(--ok)} .switch.on::after{left:23px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-size:15px;z-index:50}
+.loading{display:grid;place-items:center;height:100%;color:var(--sub);gap:10px;text-align:center}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pop{animation:pop .3s}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.shake,.pop,.node.next::after{animation:none}.sbar i{transition:none}}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* ホーム（トピックの丸が道のように並ぶ） */
+.home-bg{background:linear-gradient(180deg,var(--hb1) 0%,var(--hb2) 340px,var(--bg) 900px);margin:-8px calc(-1*max(20px,env(safe-area-inset-right,0px))) 0 calc(-1*max(20px,env(safe-area-inset-left,0px)));padding:0 max(20px,env(safe-area-inset-right,0px)) 120px max(20px,env(safe-area-inset-left,0px))}
+:root{--hb1:#dff7e6;--hb2:#f2fbf4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hb1:#10261a;--hb2:#0d1a13}}
+:root[data-theme="dark"]{--hb1:#10261a;--hb2:#0d1a13}
+.lvhead{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 0 6px;text-align:center}
+.mascot{font-size:64px;line-height:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.12))}
+.lvname{font-size:22px;font-weight:800}
+.lvsub{font-size:13px;font-weight:700;color:var(--sub);background:var(--bg);border-radius:12px;padding:3px 12px;border:2px solid var(--line)}
+.trail{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 0}
+.trail .row{display:flex;justify-content:center;gap:56px}
+.topic{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;width:132px;padding:0}
+.topic .ic{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:46px;position:relative;box-shadow:0 6px 0 rgba(0,0,0,.14);transition:transform .1s}
+.topic:active .ic{transform:translateY(3px)}
+.topic .ic.prog::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:conic-gradient(var(--gold) var(--deg),var(--line) 0);-webkit-mask:radial-gradient(circle,transparent 52px,#000 53px);mask:radial-gradient(circle,transparent 52px,#000 53px);border:0}
+.topic .ic.cur{animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 6px 0 rgba(0,0,0,.14),0 0 0 10px color-mix(in srgb,var(--primary) 22%,transparent)}}
+.topic .ic .crown{position:absolute;right:-6px;bottom:-4px;font-size:24px;background:var(--bg);border-radius:50%;width:34px;height:34px;display:grid;place-items:center;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.topic .lbl{font-size:14px;font-weight:700;line-height:1.3;text-align:center;color:var(--ink)}
+.topic .lbl small{display:block;font-size:11px;color:var(--sub);font-weight:700}
+.partlbl{align-self:center;margin:18px 0 4px;font-size:13px;font-weight:800;color:var(--sub);background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:4px 14px}
+.resume{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(560px,calc(100% - 32px));background:var(--bg);border:2px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.12);display:flex;align-items:center;gap:12px;padding:10px 12px;z-index:5}
+.resume .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:28px;flex:none}
+.resume .t{flex:1;min-width:0}
+.resume .t b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.resume .go{width:52px;height:52px;border-radius:50%;border:0;background:var(--primary);color:#fff;box-shadow:0 4px 0 var(--primary-dark);display:grid;place-items:center;flex:none}
+.resume .go svg{width:26px;height:26px}
+/* 下から出るシート（ユニットのレッスン一覧） */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:600px;border-radius:26px 26px 0 0;padding:10px max(20px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));max-height:82vh;overflow-y:auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.5}}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto 12px}
+.sheet-h{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.sheet-h .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:34px;flex:none}
+.sheet-h b{font-size:20px;line-height:1.3;display:block}
+.sheet-h small{color:var(--sub);font-size:13px}
+.lrow{display:flex;align-items:center;gap:12px;width:100%;border:2px solid var(--line);border-radius:18px;padding:12px 14px;background:var(--bg);margin-bottom:10px;text-align:left;box-shadow:0 3px 0 var(--line)}
+.lrow .n{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-family:var(--f-ro);background:var(--line);color:var(--sub);flex:none}
+.lrow.done .n{background:var(--gold);color:#fff}
+.lrow.next{border-color:var(--primary)} .lrow.next .n{background:var(--primary);color:#fff}
+.lrow .t{flex:1;min-width:0}
+.lrow .t b{display:block;font-size:16px}
+.lrow .t small{color:var(--sub);font-size:13px}
+.lrow .n svg{width:22px;height:22px}
+.xppill{display:inline-flex;align-items:center;gap:6px;background:var(--gold-soft);color:var(--gold-dark);font-weight:900;border-radius:20px;padding:6px 14px;font-family:var(--f-ro);font-size:18px}
+.donemascot{font-size:96px;line-height:1;animation:pop .4s}
+.perfect{font-size:34px;font-weight:900;color:var(--gold-dark);letter-spacing:.04em}
+</style>
+
+<div id="app"><div class="loading"><div class="te" style="font-size:48px">తెలుగు</div><div>読み込み中…</div></div></div>
+
+<script>
+"use strict";
+/* ============ アイコン ============ */
+const I = {
+  spk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+  turtle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="11" cy="13" rx="7" ry="5"/><path d="M18 12.5h2.5a1.5 1.5 0 0 0 0-3H19M6 17l-1 2M16 17l1 2M4 13H2"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  rev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg>',
+  me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7 7 .6-5.3 4.7 1.6 7.2L12 17.8 5.7 21.5l1.6-7.2L2 9.6 9 9z"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  flame:'<svg class="flame" viewBox="0 0 24 24"><path fill="var(--gold)" d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>',
+};
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
+const PART_C = {1:"var(--p1)",2:"var(--p2)",3:"var(--p3)",4:"var(--p4)",5:"var(--p5)"};
+const PART_N = {1:"第1部　音と文字",2:"第2部　最初の会話",3:"第3部　動詞",4:"第4部　文を広げる",5:"第5部　ハイデラバードの1週間"};
+
+/* ============ データ ============ */
+let C = null, CLIPS = {};
+async function loadData() {
+  const [c, k] = await Promise.all([fetch("data/course.json").then(r => r.json()), fetch("data/clips.json").then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+  C = c; CLIPS = k;
+}
+const item = id => C.items[id];
+
+/* ============ 音声（スプライトを Web Audio で切り出して再生） ============ */
+const Audio_ = {
+  ctx: null, bufs: {}, loading: {}, cur: null,
+  ensure() { if (!this.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) this.ctx = new AC(); } if (this.ctx && this.ctx.state === "suspended") this.ctx.resume(); return this.ctx; },
+  async buf(name) {
+    if (this.bufs[name]) return this.bufs[name];
+    if (!this.loading[name]) this.loading[name] = fetch("audio/" + name + ".mp4").then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })
+      .then(ab => new Promise((ok, ng) => this.ctx.decodeAudioData(ab, ok, ng))).then(b => (this.bufs[name] = b));
+    return this.loading[name];
+  },
+  preload(ids) { if (!this.ensure()) return; const names = new Set(ids.map(i => CLIPS[i]?.[0]).filter(Boolean)); names.forEach(n => this.buf(n).catch(() => {})); },
+  async play(id, slow) {
+    const c = CLIPS[id]; if (!c || !this.ensure()) return false;
+    try {
+      const b = await this.buf(c[0]);
+      if (this.cur) try { this.cur.stop(); } catch (e) {}
+      const s = this.ctx.createBufferSource(); s.buffer = b;
+      const rate = (slow ? 0.72 : 1) * (S.set.rate || 1); s.playbackRate.value = rate;
+      s.connect(this.ctx.destination); s.start(0, c[1], c[2]); this.cur = s;
+      return new Promise(r => { s.onended = () => r(true); });
+    } catch (e) { return false; }
+  },
+  tone(kind) {
+    if (!S.set.sfx || !this.ensure()) return;
+    const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.connect(g); g.connect(this.ctx.destination); o.type = "sine";
+    const seq = kind === "ok" ? [[660, 0], [990, .09]] : kind === "done" ? [[523, 0], [659, .1], [784, .2], [1046, .3]] : [[220, 0], [180, .12]];
+    seq.forEach(([f, d]) => o.frequency.setValueAtTime(f, t + d));
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.18, t + .02);
+    g.gain.exponentialRampToValueAtTime(.0001, t + (kind === "done" ? .55 : .3));
+    o.start(t); o.stop(t + (kind === "done" ? .6 : .32));
+  }
+};
+
+/* ============ 記録（端末内＋claude.ai の自分専用の保存場所） ============ */
+const LS = "telugu-drill-v1";
+const S = {
+  set: { ro: true, sfx: true, rate: 1, goal: 30, auto: true },
+  xp: {},          // day -> xp
+  done: {},        // lessonId -> best accuracy
+  srs: {},         // itemId -> [box, due, wrong, seen]
+  miss: {},        // itemId or workbook key -> count
+  wbDone: {},      // chapter -> best
+  last: null,
+};
+let DB = null, UID = null, dirty = new Set(), saveTimer = null;
+function loadLocal() { try { const j = JSON.parse(window.__NATIVE_STATE__ || localStorage.getItem(LS) || "null"); if (j) Object.assign(S, j, { set: Object.assign(S.set, j.set || {}) }); } catch (e) {} }
+function saveLocal() { const j = JSON.stringify(S); try { localStorage.setItem(LS, j); } catch (e) {} try { window.webkit?.messageHandlers?.save?.postMessage(j); } catch (e) {} }
+function bucketOf(id) { const m = /^([a-z])(\d+)/.exec(id); return m ? m[1] + Math.floor(+m[2] / 1000) : "x"; }
+function markSrs(id) { dirty.add("srs-" + bucketOf(id)); }
+function scheduleSave() { saveLocal(); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 1500); }
+async function flush() {
+  if (!DB || !UID) return;
+  const base = "data/users/" + UID + "/";
+  try {
+    await DB.doc(base + "profile").set({ set: S.set, xp: S.xp, done: S.done, miss: S.miss, wbDone: S.wbDone, last: S.last, t: Date.now() });
+    for (const key of [...dirty]) {
+      const b = key.slice(4), part = {};
+      for (const id in S.srs) if (bucketOf(id) === b) part[id] = S.srs[id];
+      await DB.doc(base + key).set({ m: part });
+      dirty.delete(key);
+    }
+  } catch (e) { /* 次回に保存し直す */ }
+}
+async function connectStore() {
+  try {
+    if (!window.claude?.use) return;
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db || !user) return;
+    const id = await user.id(); if (!id) return;
+    DB = db; UID = id;
+    const base = "data/users/" + id + "/";
+    const prof = await db.doc(base + "profile").get();
+    if (prof.exists) {
+      const p = prof.data();
+      const remoteT = p.t || 0, localT = S.lastSave || 0;
+      if (remoteT >= localT) {
+        Object.assign(S, { xp: p.xp || {}, done: p.done || {}, miss: p.miss || {}, wbDone: p.wbDone || {}, last: p.last || null });
+        S.set = Object.assign(S.set, p.set || {});
+        const snap = await db.collection("data/users/" + id).get();
+        snap.docs.forEach(d => { if (d.id.startsWith("srs-")) Object.assign(S.srs, d.data().m || {}); });
+        saveLocal(); render();
+      } else { Object.keys(S.srs).forEach(markSrs); flush(); }
+    } else { Object.keys(S.srs).forEach(markSrs); flush(); }
+  } catch (e) { /* 端末内の記録だけで続ける */ }
+}
+
+/* ============ 復習の間隔（忘れかけた頃にもう一度） ============ */
+const GAPS = [0, 1, 2, 4, 7, 14, 30, 60, 120];
+function learn(id) { if (!S.srs[id]) { S.srs[id] = [1, today() + 1, 0, 1]; markSrs(id); } }
+function grade(id, ok) {
+  const s = S.srs[id] || [0, today(), 0, 0];
+  if (ok) { s[0] = Math.min(s[0] + 1, GAPS.length - 1); s[1] = today() + GAPS[s[0]]; }
+  else { s[0] = 1; s[1] = today(); s[2]++; S.miss[id] = (S.miss[id] || 0) + 1; }
+  s[3]++; S.srs[id] = s; markSrs(id);
+}
+const dueIds = () => Object.keys(S.srs).filter(id => S.srs[id][1] <= today() && C.items[id]);
+const addXp = n => { const d = today(); S.xp[d] = (S.xp[d] || 0) + n; };
+function streak() {
+  let d = today(), n = 0;
+  if (!(S.xp[d] >= 1)) d--;
+  while ((S.xp[d] || 0) >= 1) { n++; d--; }
+  return n;
+}
+
+/* ============ 共通の部品 ============ */
+const teH = it => `<span class="te">${it.th}</span>`;
+const roH = it => `<span class="ro">${it.rh}</span>`;
+function spkBtn(id, cls = "spk") { return CLIPS[id] ? `<button class="${cls}" data-say="${id}" aria-label="音声">${I.spk}</button>` : ""; }
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-say]"); if (b) { e.stopPropagation(); Audio_.play(b.dataset.say, b.dataset.slow === "1"); }
+});
+function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 1800); }
+
+/* ============ 問題の作り方 ============ */
+function distractJa(id, pool, n = 3) {
+  const me = item(id), seen = new Set([me.ja]); const out = [];
+  for (const j of shuffle(pool)) { const it = item(j); if (it && it.ja && !seen.has(it.ja) && j !== id) { seen.add(it.ja); out.push(j); if (out.length >= n) break; } }
+  return out;
+}
+function poolFor(id) {
+  const it = item(id);
+  const same = Object.keys(C.items).filter(k => { const x = C.items[k]; return x.k === it.k && x.ja && k[0] === id[0]; });
+  return same;
+}
+function makeExercises(ids, { introNew = true } = {}) {
+  const ex = [];
+  const words = ids.filter(id => ["w", "c", "v"].includes(item(id).k));
+  const sents = ids.filter(id => ["s", "d"].includes(item(id).k));
+  const pool = words.length >= 4 ? words : ids;
+  for (const id of words) {
+    const isNew = !S.srs[id];
+    if (introNew && isNew) ex.push({ t: "intro", id });
+    ex.push({ t: Math.random() < .5 ? "mcq" : "listen", id, pool });
+  }
+  if (words.length >= 4) ex.push({ t: "pairs", ids: pick(words, Math.min(5, words.length)) });
+  for (const id of words) if (Math.random() < .5) ex.push({ t: "rev", id, pool });
+  for (const id of sents) {
+    const it = item(id);
+    if (introNew && !S.srs[id] && it.tiles) ex.push({ t: "sintro", id });
+    if (it.tiles && it.tiles.length >= 2 && it.tiles.length <= 10) ex.push({ t: Math.random() < .6 ? "build" : "lbuild", id, pool: sents });
+    else ex.push({ t: "smcq", id, pool: sents.length >= 4 ? sents : poolFor(id) });
+  }
+  // 新出の紹介は前、練習は少し混ぜる
+  const intros = ex.filter(e => e.t === "intro" || e.t === "sintro");
+  const rest = ex.filter(e => e.t !== "intro" && e.t !== "sintro");
+  const out = []; let ri = 0;
+  intros.forEach((e, i) => { out.push(e); if (i % 2 === 1 && ri < rest.length) out.push(rest[ri++]); });
+  return out.concat(shuffle(rest.slice(ri)));
+}
+function reviewExercises(ids) {
+  return shuffle(ids).map(id => {
+    const it = item(id);
+    if (it.k === "s" || it.k === "d") return it.tiles && it.tiles.length <= 10 ? { t: Math.random() < .5 ? "build" : "lbuild", id, pool: poolFor(id) } : { t: "smcq", id, pool: poolFor(id) };
+    const r = Math.random();
+    return { t: r < .35 ? "mcq" : r < .7 ? "listen" : "rev", id, pool: poolFor(id) };
+  });
+}
+function workbookExercises(ch) {
+  const qs = C.wb[ch].qs;
+  return qs.map((q, i) => ({ t: "wb", q, key: ch + ":" + i, ch }));
+}
+
+/* ============ 画面 ============ */
+let tab = "home";
+function render() {
+  if (!C) return;
+  document.body.classList.toggle("no-ro", !S.set.ro);
+  const xpT = S.xp[today()] || 0, g = S.set.goal, pct = Math.min(1, xpT / g);
+  const due = dueIds().length;
+  const ring = `<svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" stroke-width="5"/><circle cx="18" cy="18" r="15" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(pct * 94.2).toFixed(1)} 94.2" transform="rotate(-90 18 18)"/></svg>`;
+  $("#app").innerHTML = `
+  <div class="top"><div class="chip">${I.flame}${streak()}</div><div class="chip">${ring}${xpT}<span class="muted">/${g} XP</span></div><div class="grow"></div>
+    <button class="robtn ${S.set.ro ? "on" : ""}" id="b-ro" aria-label="ローマ字の表示">abc</button></div>
+  <div class="view" id="v"></div>
+  <nav class="tabs">
+    ${[["home", "学ぶ", I.home], ["review", "復習", I.rev], ["words", "単語", I.book], ["drill", "問題集", I.pen], ["me", "記録", I.me]].map(([k, n, ic]) =>
+      `<button data-tab="${k}" class="${tab === k ? "on" : ""}">${ic}${k === "review" && due ? `<span class="badge">${due}</span>` : ""}${n}</button>`).join("")}
+  </nav>`;
+  $("#b-ro").onclick = () => { S.set.ro = !S.set.ro; scheduleSave(); render(); };
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); $("#v").scrollTop = 0; });
+  ({ home: vHome, review: vReview, words: vWords, drill: vDrill, me: vMe })[tab]($("#v"));
+}
+
+function unitProgress(u) { const ls = u.lessons; const n = ls.filter(l => S.done[l.id] != null).length; return [n, ls.length]; }
+function nextLesson() {
+  for (const u of C.units) for (const l of u.lessons) if (S.done[l.id] == null) return [u, l];
+  return null;
+}
+const U_EMOJI = {1:"💡",2:"👄",3:"✍️",4:"👋",5:"🙋",6:"❓",7:"👨‍👩‍👧",8:"🏃",9:"⏪",10:"⏳",11:"🙏",12:"🧰",13:"🎯",14:"🗺️",15:"🙅",16:"🔢",17:"🧩",18:"🌶️",19:"✈️",20:"🛺",21:"🍛",22:"🛍️",23:"💼",24:"🏥",25:"🪁"};
+const U_COLOR = ["#58cc02","#ff6fa3","#ffc800","#a977f8","#1cb0f6","#ff9600","#2bd2c9","#ff4b4b"];
+const uColor = u => U_COLOR[(u.id - 1) % U_COLOR.length];
+const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+function unitOpenLesson(u) { return u.lessons.find(l => S.done[l.id] == null); }
+function vHome(v) {
+  const nx = nextLesson();
+  const curU = nx ? nx[0] : C.units[C.units.length - 1];
+  const totalL = C.units.reduce((a, u) => a + u.lessons.length, 0), doneL = Object.keys(S.done).length;
+  let h = `<div class="home-bg"><div class="lvhead"><div class="mascot">🦚</div><div class="lvname">${PART_N[curU.part].replace(/^第\d部\s*/, "")}</div><div class="lvsub">レッスン ${doneL} / ${totalL}</div></div><div class="trail">`;
+  // 並び方：1つ → 1つ → 2つ並び をくり返す（HelloChinese 風）
+  const pattern = [1, 1, 2];
+  let i = 0, k = 0, part = 0;
+  const units = C.units;
+  while (i < units.length) {
+    if (units[i].part !== part) { part = units[i].part; h += `<div class="partlbl">${PART_N[part]}</div>`; k = 0; }
+    let n = pattern[k % pattern.length]; k++;
+    const row = [];
+    while (row.length < n && i < units.length && units[i].part === part) row.push(units[i++]);
+    h += `<div class="row">${row.map(u => {
+      const [d, nn] = unitProgress(u); const deg = Math.round(d / nn * 360);
+      const cur = u.id === curU.id && nx;
+      return `<button class="topic" data-unit="${u.id}"><span class="ic ${d ? "prog" : ""} ${cur ? "cur" : ""}" style="background:${uColor(u)};--deg:${deg}deg">${U_EMOJI[u.id] || "📘"}${d === nn ? '<span class="crown">👑</span>' : ""}</span>
+        <span class="lbl"><small>ユニット ${u.id}</small>${esc(u.title.replace(/^\d+日目：/, ""))}</span></button>`;
+    }).join("")}</div>`;
+  }
+  h += `</div></div>`;
+  if (nx) {
+    const [u, l] = nx; const [d, nn] = unitProgress(u);
+    h += `<div class="resume"><div class="ic" style="background:${uColor(u)}">${U_EMOJI[u.id] || "📘"}</div><div class="t"><b>${esc(u.title)}</b>
+      <div class="prog"><i style="width:${d / nn * 100}%"></i></div><small class="muted">${d}/${nn} レッスン</small></div><button class="go" data-lesson="${l.id}" aria-label="つづける">${ARROW}</button></div>`;
+  }
+  v.innerHTML = h;
+  v.querySelectorAll("[data-unit]").forEach(el => el.onclick = () => openUnit(+el.dataset.unit));
+  v.querySelectorAll("[data-lesson]").forEach(el => el.onclick = () => startLesson(el.dataset.lesson));
+  const cur = v.querySelector(".ic.cur"); if (cur) setTimeout(() => { const t = cur.closest(".topic"); if (t.offsetTop > 380) v.scrollTo({ top: t.offsetTop - 260 }); }, 0);
+}
+function openUnit(uid) {
+  const u = C.units.find(x => x.id === uid), next = unitOpenLesson(u);
+  const bg = document.createElement("div"); bg.className = "sheet-bg";
+  bg.innerHTML = `<div class="sheet" role="dialog"><div class="grab"></div>
+    <div class="sheet-h"><div class="ic" style="background:${uColor(u)}">${U_EMOJI[u.id] || "📘"}</div><div><small>ユニット ${u.id}</small><b>${esc(u.title)}</b><small>${esc(u.sub)}</small></div></div>
+    ${u.lessons.map((l, i) => { const d = S.done[l.id] != null, nx = next && next.id === l.id;
+      const what = l.kind === "dialogue" ? "会話：" + (l.title || "") : `単語・文 ${l.items.length}`;
+      return `<button class="lrow ${d ? "done" : nx ? "next" : ""}" data-lesson="${l.id}"><span class="n">${l.kind === "dialogue" ? I.chat : d ? I.check : i + 1}</span><span class="t"><b>${l.kind === "dialogue" ? "会話" : "レッスン " + (i + 1)}</b><small>${esc(what)}${d ? `　正答率 ${S.done[l.id]}%` : ""}</small></span></button>`; }).join("")}
+    <div style="display:flex;gap:10px;margin-top:6px"><button class="pill" style="flex:1" data-points="${u.id}">📖 文法ポイント</button>${C.wb[String(u.id)] ? `<button class="pill" style="flex:1" data-wb="${u.id}">✏️ 問題集</button>` : ""}</div></div>`;
+  document.body.appendChild(bg);
+  const close = () => bg.remove();
+  bg.onclick = e => { if (e.target === bg) close(); };
+  bg.querySelectorAll("[data-lesson]").forEach(el => el.onclick = () => { close(); startLesson(el.dataset.lesson); });
+  bg.querySelectorAll("[data-points]").forEach(el => el.onclick = () => { close(); tab = "home"; showPoints(+el.dataset.points); });
+  bg.querySelectorAll("[data-wb]").forEach(el => el.onclick = () => { close(); startWorkbook(el.dataset.wb); });
+}
+
+function vReview(v) {
+  const due = dueIds(), all = Object.keys(S.srs).length;
+  const missIds = Object.keys(S.miss).filter(id => C.items[id]).sort((a, b) => S.miss[b] - S.miss[a]);
+  const strong = Object.values(S.srs).filter(s => s[0] >= 5).length;
+  v.innerHTML = `<h1 class="vt">復習</h1>
+    <div class="statrow"><div class="stat"><b>${due.length}</b><small>今日の復習</small></div><div class="stat"><b>${all}</b><small>覚えはじめた</small></div><div class="stat"><b>${strong}</b><small>しっかり定着</small></div></div>
+    <div class="card"><b>今日の復習</b><p class="muted">忘れかけた頃に出し直します。正解すると次に出るまでの間隔がのびます（1日→2日→4日→1週間→2週間…）。</p>
+      <button class="btn" id="b-due" ${due.length ? "" : "disabled"} style="width:100%">${due.length ? `復習する（${Math.min(due.length, 20)}問）` : "今日の復習は終わり"}</button></div>
+    <div class="card"><b>まちがえた単語・文</b><p class="muted">まちがえた回数が多い順。まとめて練習できます。</p>
+      <button class="btn ghost" id="b-miss" ${missIds.length ? "" : "disabled"} style="width:100%">まちがいを練習（${Math.min(missIds.length, 15)}問）</button>
+      <div style="margin-top:8px">${missIds.slice(0, 30).map(id => { const it = item(id); return `<div class="li">${spkBtn(id)}<div class="grow">${teH(it)}<small>${roH(it)}　${esc(it.ja)}</small></div><span class="muted">×${S.miss[id]}</span></div>`; }).join("")}</div></div>`;
+  $("#b-due").onclick = startReview;
+  $("#b-miss").onclick = () => runSession({ title: "まちがいの練習", ex: reviewExercises(missIds.slice(0, 15)), kind: "review" });
+}
+function startReview() { const due = shuffle(dueIds()).slice(0, 20); if (!due.length) return toast("今日の復習はありません"); runSession({ title: "今日の復習", ex: reviewExercises(due), kind: "review" }); }
+
+let wordLv = 1;
+function vWords(v) {
+  if (!C.decks.length) { v.innerHTML = `<h1 class="vt">単語帳</h1><div class="card muted">単語帳のデータはまだありません。</div>`; return; }
+  const decks = C.decks.filter(d => d.lv === wordLv);
+  const lvAll = C.decks.filter(d => d.lv === wordLv).flatMap(d => d.items);
+  const known = lvAll.filter(id => (S.srs[id]?.[0] || 0) >= 3).length;
+  v.innerHTML = `<h1 class="vt">単語帳</h1>
+    <div class="seg">${[1, 2, 3].map(l => `<button data-lv="${l}" class="${wordLv === l ? "on" : ""}">${["", "入門", "初級", "中級"][l]}</button>`).join("")}</div>
+    <div class="card"><div class="muted">レベル${wordLv}：${lvAll.length}語中 ${known}語を覚えました</div><div class="prog"><i style="width:${lvAll.length ? known / lvAll.length * 100 : 0}%"></i></div></div>
+    ${decks.map(d => {
+      const ks = d.items.map(id => { const b = S.srs[id]?.[0] || 0; return b >= 4 ? "k3" : b >= 2 ? "k2" : b >= 1 ? "k1" : ""; });
+      const th = [...new Set(d.items.map(id => item(id).theme))].slice(0, 3).join("・");
+      return `<div class="card deck" data-deck="${d.id}"><div class="num">No.${d.from}<br>〜${d.from + d.items.length - 1}</div><div style="flex:1;min-width:0"><b style="font-size:14px">${esc(th)}</b><div class="dots">${ks.map(k => `<i class="${k}"></i>`).join("")}</div></div></div>`;
+    }).join("")}`;
+  v.querySelectorAll("[data-lv]").forEach(b => b.onclick = () => { wordLv = +b.dataset.lv; render(); });
+  v.querySelectorAll("[data-deck]").forEach(b => b.onclick = () => openDeck(b.dataset.deck));
+}
+function openDeck(did) {
+  const d = C.decks.find(x => x.id === did);
+  const v = $("#v");
+  v.innerHTML = `<button class="pill" id="back">← 単語帳</button>
+    <h1 class="vt" style="margin-top:12px">No.${d.from}〜${d.from + d.items.length - 1}</h1>
+    <div class="row" style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" id="b-learn" style="flex:1">覚える（10語ずつ）</button><button class="btn ghost" id="b-test" style="flex:1">テスト</button></div>
+    <div class="card">${d.items.map(id => { const it = item(id), e = item(it.ex); const b = S.srs[id]?.[0] || 0;
+      return `<div class="li">${spkBtn(id)}<div class="grow">${teH(it)} <span class="muted">${roH(it)}</span><small><b style="color:var(--ink)">${esc(it.ja)}</b>${it.pos ? "　" + it.pos : ""}</small>
+        ${e ? `<small style="margin-top:4px"><span class="te" style="font-size:15px;color:var(--ink)">${e.th}</span>　${esc(e.ja)}</small>` : ""}</div>${spkBtn(it.ex)}<span class="muted" style="width:18px">${b >= 4 ? "◎" : b >= 2 ? "○" : b ? "△" : ""}</span></div>`; }).join("")}</div>`;
+  $("#back").onclick = () => render();
+  $("#b-learn").onclick = () => {
+    const fresh = d.items.filter(id => !S.srs[id]); const ids = (fresh.length ? fresh : shuffle(d.items)).slice(0, 10);
+    runSession({ title: "単語を覚える", ex: wordbookLearn(ids), kind: "words", onDone: () => openDeck(did) });
+  };
+  $("#b-test").onclick = () => runSession({ title: "単語テスト", ex: reviewExercises(pick(d.items, 15)), kind: "review", onDone: () => openDeck(did) });
+}
+function wordbookLearn(ids) {
+  const ex = [];
+  ids.forEach(id => ex.push({ t: "intro", id }));
+  const pool = C.decks.flatMap(d => d.items);
+  const prac = [];
+  ids.forEach(id => { prac.push({ t: "mcq", id, pool }); prac.push({ t: "listen", id, pool }); prac.push({ t: "rev", id, pool }); });
+  if (ids.length >= 4) prac.push({ t: "pairs", ids: pick(ids, 5) });
+  const out = [];
+  ex.forEach((e, i) => { out.push(e); if (i % 3 === 2) out.push(...prac.splice(0, 2)); });
+  return out.concat(shuffle(prac));
+}
+
+function vDrill(v) {
+  const keys = Object.keys(C.wb).sort((a, b) => key(a) - key(b));
+  function key(k) { k = +k; return k >= 100 ? k - 100 + .5 : k; }
+  v.innerHTML = `<h1 class="vt">問題集</h1><p class="muted">教科書の各ユニットに対応した練習問題です。聞き取り・並べ替え・作文などをまぜて出します。</p>
+    ${keys.map(k => { const ch = C.wb[k], best = S.wbDone[k]; const test = +k >= 100;
+      return `<div class="card li" data-wb="${k}" style="cursor:pointer"><div class="unit-no" style="background:${test ? "var(--gold)" : "var(--primary)"};color:${test ? "#fff" : "#fff"}">${test ? "★" : k}</div>
+        <div class="grow"><b style="font-size:15px">${esc(ch.title)}</b><small>${ch.qs.length}問${best != null ? `　最高 ${best}%` : ""}</small></div></div>`; }).join("")}`;
+  v.querySelectorAll("[data-wb]").forEach(b => b.onclick = () => startWorkbook(b.dataset.wb));
+}
+function startWorkbook(ch) {
+  const all = workbookExercises(String(ch));
+  // 1回は最大20問。前回の続きから
+  const k = "wbpos-" + ch; const pos = S[k] || 0; const ex = all.slice(pos, pos + 20);
+  S[k] = pos + 20 >= all.length ? 0 : pos + 20;
+  runSession({ title: C.wb[ch].title, ex: ex.length ? ex : all.slice(0, 20), kind: "wb", wb: String(ch) });
+}
+
+function vMe(v) {
+  const days = []; for (let i = 13; i >= 0; i--) days.push(today() - i);
+  const max = Math.max(S.set.goal, ...days.map(d => S.xp[d] || 0));
+  const totalXp = Object.values(S.xp).reduce((a, b) => a + b, 0);
+  const lessons = Object.keys(S.done).length;
+  v.innerHTML = `<h1 class="vt">記録と設定</h1>
+    <div class="statrow"><div class="stat"><b>${streak()}</b><small>連続日数</small></div><div class="stat"><b>${totalXp}</b><small>合計XP</small></div><div class="stat"><b>${lessons}</b><small>レッスン</small></div></div>
+    <div class="card"><b>この2週間</b>
+      <svg viewBox="0 0 280 110" style="width:100%;margin-top:8px">${days.map((d, i) => { const x = (S.xp[d] || 0), h = x / max * 80; return `<rect x="${i * 20 + 3}" y="${90 - h}" width="14" height="${Math.max(h, 1)}" rx="3" fill="${x >= S.set.goal ? "var(--gold)" : "var(--primary)"}" opacity="${x ? 1 : .25}"/>`; }).join("")}
+      <line x1="0" x2="280" y1="${90 - S.set.goal / max * 80}" y2="${90 - S.set.goal / max * 80}" stroke="var(--sub)" stroke-dasharray="3 3" stroke-width="1"/>
+      ${days.map((d, i) => i % 2 === 1 ? "" : `<text x="${i * 20 + 10}" y="105" font-size="9" text-anchor="middle" fill="var(--sub)">${new Date((d) * 864e5).getUTCDate()}</text>`).join("")}</svg>
+      <div class="muted">点線が1日の目標。黄色は目標を達成した日</div></div>
+    <div class="card">
+      <div class="toggle"><span>ローマ字を表示</span><button class="switch ${S.set.ro ? "on" : ""}" data-sw="ro" aria-label="ローマ字"></button></div>
+      <div class="toggle"><span>効果音</span><button class="switch ${S.set.sfx ? "on" : ""}" data-sw="sfx" aria-label="効果音"></button></div>
+      <div class="toggle"><span>音声を自動で再生</span><button class="switch ${S.set.auto ? "on" : ""}" data-sw="auto" aria-label="自動再生"></button></div>
+      <div class="toggle"><span>音声の速さ</span><div class="seg" style="margin:0;width:180px">${[.8, 1, 1.2].map(r => `<button data-rate="${r}" class="${S.set.rate == r ? "on" : ""}">${r}</button>`).join("")}</div></div>
+      <div class="toggle"><span>1日の目標</span><div class="seg" style="margin:0;width:180px">${[20, 30, 50].map(r => `<button data-goal="${r}" class="${S.set.goal == r ? "on" : ""}">${r}</button>`).join("")}</div></div>
+    </div>
+    <div class="card"><b>記録のバックアップ</b><p class="muted">学習の記録はこの端末に保存されています。機種変更のときや念のために、ファイルに書き出しておけます。</p>
+      <div style="display:flex;gap:10px"><button class="btn ghost" id="b-exp" style="flex:1">書き出す</button><label class="btn ghost" style="flex:1;text-align:center">読み込む<input type="file" id="b-imp" accept="application/json,.json" hidden></label></div></div>`;
+  v.querySelectorAll("[data-sw]").forEach(b => b.onclick = () => { S.set[b.dataset.sw] = !S.set[b.dataset.sw]; scheduleSave(); render(); });
+  v.querySelectorAll("[data-rate]").forEach(b => b.onclick = () => { S.set.rate = +b.dataset.rate; scheduleSave(); render(); });
+  v.querySelectorAll("[data-goal]").forEach(b => b.onclick = () => { S.set.goal = +b.dataset.goal; scheduleSave(); render(); });
+  $("#b-exp").onclick = () => {
+    const blob = new Blob([JSON.stringify(S)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "telugu-drill-記録-" + new Date().toISOString().slice(0, 10) + ".json"; document.body.appendChild(a); a.click(); a.remove();
+  };
+  $("#b-imp").onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    f.text().then(t => { const j = JSON.parse(t); if (!j || !j.srs) throw 0; Object.assign(S, j); S.set = Object.assign(S.set, j.set || {}); saveLocal(); toast("記録を読み込みました"); render(); })
+      .catch(() => toast("このファイルは読み込めません"));
+  };
+}
+
+function showPoints(uid) {
+  const u = C.units.find(x => x.id === uid);
+  const v = $("#v");
+  v.innerHTML = `<button class="pill" id="back">← もどる</button><h1 class="vt" style="margin-top:12px">ユニット${u.id}　${esc(u.title)}</h1>
+    ${u.goals.length ? `<div class="card"><b>できるようになること</b><ul style="margin:6px 0 0;padding-left:20px;font-size:14px;line-height:1.7">${u.goals.map(g => `<li>${esc(g)}</li>`).join("")}</ul></div>` : ""}
+    <div class="points">${u.points.map(p => `<div class="card"><h3>${esc(p.t)}</h3>${p.h}</div>`).join("") || '<div class="card muted">このユニットの要点はレッスンの中で出てきます。</div>'}</div>`;
+  $("#back").onclick = () => render();
+}
+
+/* ============ レッスンの実行 ============ */
+function startLesson(lid) {
+  const u = C.units.find(x => x.lessons.some(l => l.id === lid)), l = u.lessons.find(x => x.id === lid);
+  Audio_.ensure(); Audio_.preload(l.items);
+  let ex;
+  if (l.kind === "dialogue") ex = dialogueExercises(l);
+  else ex = makeExercises(l.items);
+  runSession({ title: u.title, ex, kind: "lesson", lesson: l, unit: u });
+}
+function dialogueExercises(l) {
+  const ex = [{ t: "dshow", l }];
+  l.items.forEach(id => {
+    const it = item(id);
+    if (it.who === "あなた" && it.p.split(" ").length <= 10) ex.push({ t: "dbuild", id, l });
+    else ex.push({ t: "smcq", id, pool: l.items.length >= 4 ? l.items : poolFor(id), listen: true });
+  });
+  return ex;
+}
+
+let SS = null; // session state
+function runSession(cfg) {
+  Audio_.ensure();
+  SS = { ...cfg, queue: cfg.ex.slice(), total: cfg.ex.filter(e => !["intro", "sintro", "dshow"].includes(e.t)).length, right: 0, wrong: 0, combo: 0, best: 0, t0: Date.now(), done: 0, seen: new Set(), xp: 0 };
+  const el = document.createElement("div"); el.className = "sess"; el.id = "sess"; document.body.appendChild(el);
+  nextEx();
+}
+function closeSession() { const s = $("#sess"); if (s) s.remove(); SS = null; render(); }
+function sessShell(body, footHtml) {
+  const prog = SS.total ? Math.min(1, SS.done / SS.total) : 0;
+  $("#sess").innerHTML = `<div class="sess-top"><button class="iconbtn" id="s-x" aria-label="やめる">${I.x}</button><div class="sbar"><i style="width:${prog * 100}%"></i></div><div class="combo">${SS.combo >= 3 ? "×" + SS.combo : ""}</div></div>
+    <div class="sbody" id="sb">${body}</div><div class="foot" id="sf">${footHtml}</div>`;
+  $("#s-x").onclick = () => { flush(); closeSession(); };
+}
+function nextEx() {
+  const e = SS.queue.shift();
+  if (!e) return finish();
+  SS.cur = e;
+  RENDER_EX[e.t](e);
+}
+function autoSay(id) { if (S.set.auto && CLIPS[id]) setTimeout(() => Audio_.play(id), 250); }
+
+function answerFoot(ok, e, detailHtml) {
+  const f = $("#sf");
+  f.className = "foot " + (ok ? "ok" : "bad");
+  const praise = ["正解！", "いいね！", "完璧！", "その調子！"][Math.random() * 4 | 0];
+  f.innerHTML = `<div class="fb"><div style="flex:1"><div class="fb-t">${ok ? praise : "正しい答え"}</div>${detailHtml || ""}</div></div><button class="btn" id="s-next">つづける</button>`;
+  $("#s-next").onclick = nextEx;
+  Audio_.tone(ok ? "ok" : "bad");
+  if (!ok) { $("#sb").classList.add("shake"); }
+}
+function scoreEx(e, ok, srsId) {
+  if (e.retry) { if (ok) SS.done++; }
+  else { if (ok) { SS.right++; SS.done++; } else SS.wrong++; }
+  if (ok) { SS.combo++; SS.best = Math.max(SS.best, SS.combo); SS.xp += 1 + (SS.combo >= 5 ? 1 : 0); }
+  else { SS.combo = 0; SS.queue.push({ ...e, retry: true }); }
+  if (srsId) { if (S.srs[srsId] || SS.kind !== "lesson") grade(srsId, ok); else if (!ok) S.miss[srsId] = (S.miss[srsId] || 0) + 1; }
+  // 進捗バーを更新
+  const bar = $(".sbar i"); if (bar) bar.style.width = Math.min(100, SS.done / SS.total * 100) + "%";
+  const cb = $(".combo"); if (cb) cb.textContent = SS.combo >= 3 ? "×" + SS.combo : "";
+}
+function checkFoot(enabled = false) { return `<button class="btn" id="s-check" ${enabled ? "" : "disabled"}>チェック</button>`; }
+
+const RENDER_EX = {
+  intro(e) {
+    const it = item(e.id), ex = it.ex ? item(it.ex) : null;
+    sessShell(`<div class="newtag">新しい単語</div><div class="intro pop">${spkBtn(e.id, "bigspk")}${teH(it)}${roH(it)}<div class="ja">${esc(it.ja)}</div>
+      ${it.pos ? `<div class="note">${esc(it.pos)}</div>` : ""}${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}
+      ${ex ? `<div class="exbox">${spkBtn(it.ex)}<div><span class="te">${ex.th}</span><br><span class="ro" style="font-size:12px">${ex.rh}</span><div style="font-size:14px">${esc(ex.ja)}</div></div></div>` : ""}
+      <button class="slow" data-say="${e.id}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`,
+      `<button class="btn" id="s-next">わかった</button>`);
+    autoSay(e.id); learn(e.id); if (it.ex) learn(it.ex);
+    $("#s-next").onclick = nextEx;
+  },
+  sintro(e) {
+    const it = item(e.id);
+    sessShell(`<div class="newtag">新しい文</div><div class="intro pop">${spkBtn(e.id, "bigspk")}
+      <div class="gloss">${it.tiles.map(t => `<span><span class="te">${t[1]}</span><span class="ro">${t[2]}</span>${esc(t[3])}</span>`).join("")}</div>
+      <div class="ja">${esc(it.ja)}</div>${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}
+      <button class="slow" data-say="${e.id}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`,
+      `<button class="btn" id="s-next">わかった</button>`);
+    autoSay(e.id); learn(e.id);
+    $("#s-next").onclick = nextEx;
+  },
+  mcq(e) { choiceEx(e, "この意味は？", true, false); },
+  listen(e) { choiceEx(e, "聞こえた単語の意味は？", false, true); },
+  smcq(e) { choiceEx(e, e.listen ? "聞いて、意味を選ぼう" : "この文の意味は？", !e.listen, !!e.listen); },
+  rev(e) {
+    const it = item(e.id), others = distractJa(e.id, e.pool, 3), opts = shuffle([e.id, ...others]);
+    sessShell(`<div class="qtitle">テルグ語で言うと？</div><div class="prompt-ja">${esc(it.ja)}</div>
+      <div class="opts">${opts.map((id, i) => `<button class="opt" data-id="${id}"><span class="k">${i + 1}</span><span>${teH(item(id))}<br>${roH(item(id))}</span></button>`).join("")}</div>`, checkFoot());
+    let sel = null;
+    document.querySelectorAll(".opt").forEach(b => b.onclick = () => { document.querySelectorAll(".opt").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); sel = b.dataset.id; Audio_.play(sel); $("#s-check").disabled = false; });
+    $("#s-check").onclick = () => {
+      const ok = sel === e.id; document.querySelectorAll(".opt").forEach(b => { if (b.dataset.id === e.id) b.classList.add("ok"); else if (b.dataset.id === sel) b.classList.add("bad"); });
+      scoreEx(e, ok, e.id); answerFoot(ok, e, `${teH(it)} ${roH(it)}`); Audio_.play(e.id);
+    };
+  },
+  pairs(e) {
+    const ids = e.ids; const L = shuffle(ids), R = shuffle(ids);
+    sessShell(`<div class="qtitle">ペアを見つけよう</div><div class="pairs">${L.map((id, i) => `<button class="opt" data-l="${id}">${teH(item(id))}</button><button class="opt" data-r="${R[i]}">${esc(item(R[i]).ja)}</button>`).join("")}</div>`,
+      `<button class="btn" id="s-next" disabled>つづける</button>`);
+    let a = null, b = null, left = ids.length, mistakes = 0;
+    const tryMatch = () => {
+      if (!a || !b) return;
+      const ea = $(`[data-l="${a}"]`), eb = $(`[data-r="${b}"]`);
+      if (a === b) { ea.classList.add("ok"); eb.classList.add("ok"); Audio_.tone("ok"); setTimeout(() => { ea.classList.add("gone"); eb.classList.add("gone"); }, 250); left--; if (S.srs[a]) grade(a, true); if (!left) { scoreEx(e, mistakes === 0); $("#s-next").disabled = false; } }
+      else { ea.classList.add("bad"); eb.classList.add("bad"); mistakes++; Audio_.tone("bad"); setTimeout(() => { ea.classList.remove("bad", "sel"); eb.classList.remove("bad", "sel"); }, 450); }
+      a = b = null;
+    };
+    document.querySelectorAll("[data-l]").forEach(el => el.onclick = () => { document.querySelectorAll("[data-l]").forEach(x => x.classList.remove("sel")); el.classList.add("sel"); a = el.dataset.l; Audio_.play(a); tryMatch(); });
+    document.querySelectorAll("[data-r]").forEach(el => el.onclick = () => { document.querySelectorAll("[data-r]").forEach(x => x.classList.remove("sel")); el.classList.add("sel"); b = el.dataset.r; tryMatch(); });
+    $("#s-next").onclick = nextEx;
+  },
+  build(e) { buildEx(e, false); },
+  lbuild(e) { buildEx(e, true); },
+  dshow(e) {
+    const l = e.l;
+    sessShell(`<div class="qtitle">${esc(l.title || "会話")}</div><div class="qhint">${esc(l.scene || "")}</div>
+      <div class="dlg">${l.items.map(id => { const it = item(id); return `<div class="bub ${it.who === "あなた" ? "me" : ""}" data-say="${id}"><div class="who">${esc(it.who)}</div>${teH(it)}<br>${roH(it)}<div class="ja">${esc(it.ja)}</div></div>`; }).join("")}</div>`,
+      `<div style="display:flex;gap:10px"><button class="btn ghost" id="s-all" style="flex:1">${I.spk.replace("<svg", '<svg style="width:18px;height:18px;vertical-align:-3px"')} 全部聞く</button><button class="btn" id="s-next" style="flex:1">練習する</button></div>`);
+    $("#s-next").onclick = nextEx;
+    $("#s-all").onclick = async () => { for (const id of l.items) { const b = $(`.bub[data-say="${id}"]`); b && b.scrollIntoView({ block: "center", behavior: "smooth" }); if (!(await Audio_.play(id))) break; await new Promise(r => setTimeout(r, 450)); } };
+    l.items.forEach(learn);
+  },
+  dbuild(e) { buildEx(e, false, "あなたのセリフを作ろう"); },
+  wb(e) { wbEx(e); },
+};
+
+function choiceEx(e, title, showTe, listenOnly) {
+  const it = item(e.id), others = distractJa(e.id, e.pool, 3), opts = shuffle([e.id, ...others]);
+  const prompt = listenOnly
+    ? `<div class="listen-c">${spkBtn(e.id, "bigspk")}<button class="slow" data-say="${e.id}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`
+    : `<div class="prompt">${spkBtn(e.id)}<div>${teH(it)}<br>${roH(it)}</div></div>`;
+  sessShell(`<div class="qtitle">${title}</div>${prompt}<div class="opts">${opts.map((id, i) => `<button class="opt" data-id="${id}"><span class="k">${i + 1}</span><span>${esc(item(id).ja)}</span></button>`).join("")}</div>`, checkFoot());
+  autoSay(e.id);
+  let sel = null;
+  document.querySelectorAll(".opt").forEach(b => b.onclick = () => { document.querySelectorAll(".opt").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); sel = b.dataset.id; $("#s-check").disabled = false; });
+  $("#s-check").onclick = () => {
+    const ok = sel === e.id;
+    document.querySelectorAll(".opt").forEach(b => { if (b.dataset.id === e.id) b.classList.add("ok"); else if (b.dataset.id === sel) b.classList.add("bad"); });
+    scoreEx(e, ok, e.id);
+    answerFoot(ok, e, `<div>${teH(it)} ${roH(it)}</div><small>${esc(it.ja)}</small>`);
+    if (listenOnly || !ok) Audio_.play(e.id);
+  };
+}
+
+function tilesOf(it) { return it.tiles ? it.tiles.map(t => ({ p: t[0], th: t[1], rh: t[2] })) : it.p.split(/\s+/).map(w => ({ p: w, th: esc(w), rh: "" })); }
+function buildEx(e, listenOnly, title) {
+  const it = item(e.id), tiles = tilesOf(it);
+  const pool = (e.pool || []).filter(x => x !== e.id && item(x));
+  const extra = []; const have = new Set(tiles.map(t => t.p));
+  for (const x of shuffle(pool)) { for (const t of tilesOf(item(x))) { if (!have.has(t.p) && t.p.length > 1) { extra.push(t); have.add(t.p); break; } } if (extra.length >= Math.min(3, Math.max(1, 8 - tiles.length))) break; }
+  const bank = shuffle(tiles.concat(extra)).map((t, i) => ({ ...t, i }));
+  const prompt = listenOnly
+    ? `<div class="listen-c">${spkBtn(e.id, "bigspk")}<button class="slow" data-say="${e.id}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`
+    : `<div class="prompt-ja">${esc(it.ja)}</div>`;
+  sessShell(`<div class="qtitle">${title || (listenOnly ? "聞こえた文を組み立てよう" : "テルグ語に並べかえよう")}</div>${prompt}
+    <div class="answer-area" id="ans"></div><div class="bank" id="bank">${bank.map(t => `<button class="tile" data-i="${t.i}"><span class="te">${t.th}</span>${t.rh ? `<span class="ro">${t.rh}</span>` : ""}</button>`).join("")}</div>`, checkFoot());
+  if (listenOnly) autoSay(e.id);
+  const picked = [];
+  const redraw = () => {
+    $("#ans").innerHTML = picked.map((i, k) => { const t = bank[i]; return `<button class="tile" data-k="${k}"><span class="te">${t.th}</span>${t.rh ? `<span class="ro">${t.rh}</span>` : ""}</button>`; }).join("");
+    document.querySelectorAll("#bank .tile").forEach(b => b.classList.toggle("used", picked.includes(+b.dataset.i)));
+    document.querySelectorAll("#ans .tile").forEach(b => b.onclick = () => { picked.splice(+b.dataset.k, 1); redraw(); });
+    $("#s-check").disabled = !picked.length;
+  };
+  document.querySelectorAll("#bank .tile").forEach(b => b.onclick = () => { const i = +b.dataset.i; if (!picked.includes(i)) { picked.push(i); redraw(); } });
+  $("#s-check").onclick = () => {
+    const got = picked.map(i => bank[i].p).join(" ").replace(/[.,?!]/g, "");
+    const want = tiles.map(t => t.p).join(" ").replace(/[.,?!]/g, "");
+    const ok = got === want;
+    scoreEx(e, ok, e.id);
+    answerFoot(ok, e, `<div>${teH(it)}</div><div>${roH(it)}</div><small>${esc(it.ja)}</small>`);
+    Audio_.play(e.id);
+    document.querySelectorAll(".tile").forEach(b => b.disabled = true);
+  };
+}
+
+/* ---- 問題集の問題 ---- */
+function wbEx(e) {
+  const q = e.q, ai = q.ai ? item(q.ai) : null, qi = q.qi ? item(q.qi) : null;
+  const head = `<div class="qhint">${esc(q.ins || "")}</div>`;
+  const qText = q.qh ? `<div class="prompt-ja" style="font-size:18px">${q.qh}</div>` : "";
+  const qAudio = qi ? (q.kind === "listen" ? `<div class="listen-c">${spkBtn(q.qi, "bigspk")}<button class="slow" data-say="${q.qi}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`
+    : `<div class="prompt">${spkBtn(q.qi)}<div>${teH(qi)}<br>${roH(qi)}</div></div>`) : "";
+  const done = ok => {
+    if (!ok) S.miss["wb:" + e.key] = (S.miss["wb:" + e.key] || 0) + 1;
+    scoreEx(e, ok, null);
+    answerFoot(ok, e, `${ai ? `<div>${teH(ai)}</div><div>${roH(ai)}</div>` : ""}${q.a ? `<small>${esc(q.a)}</small>` : ""}`);
+    if (q.ai) Audio_.play(q.ai);
+  };
+  if (q.ch && q.ans != null) {
+    sessShell(`${head}${qAudio}${qText}<div class="opts">${q.ch.map((c, i) => `<button class="opt" data-i="${i}"><span class="k">${"ABCDEFGH"[i]}</span><span>${c}</span></button>`).join("")}</div>`, checkFoot());
+    if (qi) autoSay(q.qi);
+    let sel = null;
+    document.querySelectorAll(".opt").forEach(b => b.onclick = () => { document.querySelectorAll(".opt").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); sel = +b.dataset.i; $("#s-check").disabled = false; });
+    $("#s-check").onclick = () => { const ok = sel === q.ans; document.querySelectorAll(".opt").forEach(b => { const i = +b.dataset.i; if (i === q.ans) b.classList.add("ok"); else if (i === sel) b.classList.add("bad"); }); done(ok); };
+    return;
+  }
+  const words = ai ? ai.p.split(/\s+/) : [];
+  if (ai && words.length >= 2 && words.length <= 9) {
+    // 並べかえで答える
+    const fake = { id: q.ai, pool: Object.keys(C.items).filter(k => k[0] === "q").slice(0, 400) };
+    const it = ai;
+    const tiles = it.p.split(/\s+/).map(w => ({ p: w }));
+    const have = new Set(tiles.map(t => t.p)), extra = [];
+    for (const x of shuffle(fake.pool)) { const w = shuffle(item(x).p.split(/\s+/)).find(w => !have.has(w) && w.length > 1); if (w) { extra.push({ p: w }); have.add(w); } if (extra.length >= 3) break; }
+    const bank = shuffle(tiles.concat(extra)).map((t, i) => ({ ...t, i }));
+    sessShell(`${head}${qAudio}${qText}<div class="answer-area" id="ans"></div><div class="bank" id="bank">${bank.map(t => `<button class="tile" data-i="${t.i}"><span class="te">${esc(t.p)}</span></button>`).join("")}</div>`, checkFoot());
+    if (qi) autoSay(q.qi);
+    const picked = [];
+    const redraw = () => {
+      $("#ans").innerHTML = picked.map((i, k) => `<button class="tile" data-k="${k}"><span class="te">${esc(bank[i].p)}</span></button>`).join("");
+      document.querySelectorAll("#bank .tile").forEach(b => b.classList.toggle("used", picked.includes(+b.dataset.i)));
+      document.querySelectorAll("#ans .tile").forEach(b => b.onclick = () => { picked.splice(+b.dataset.k, 1); redraw(); });
+      $("#s-check").disabled = !picked.length;
+    };
+    document.querySelectorAll("#bank .tile").forEach(b => b.onclick = () => { const i = +b.dataset.i; if (!picked.includes(i)) { picked.push(i); redraw(); } });
+    $("#s-check").onclick = () => { const strip = s => s.replace(/[.,?!]/g, ""); done(strip(picked.map(i => bank[i].p).join(" ")) === strip(it.p)); document.querySelectorAll(".tile").forEach(b => b.disabled = true); };
+    return;
+  }
+  // 自分で考えてから答えを見る
+  sessShell(`${head}${qAudio}${qText}<div class="muted">頭の中で（または声に出して）答えてから、答えを見よう。</div><div id="rv"></div>`,
+    `<button class="btn" id="s-show">答えを見る</button>`);
+  if (qi) autoSay(q.qi);
+  $("#s-show").onclick = () => {
+    $("#rv").innerHTML = `<div class="reveal">${ai ? `${spkBtn(q.ai)} ${teH(ai)}<br>${roH(ai)}` : ""}${q.a ? `<div style="margin-top:6px">${esc(q.a)}</div>` : ""}</div>`;
+    if (q.ai) Audio_.play(q.ai);
+    $("#sf").innerHTML = `<div class="selfgrade"><button class="btn ghost" id="g-no">まだ</button><button class="btn" id="g-ok">言えた</button></div>`;
+    $("#g-no").onclick = () => { S.miss["wb:" + e.key] = (S.miss["wb:" + e.key] || 0) + 1; scoreEx(e, false, null); nextEx(); };
+    $("#g-ok").onclick = () => { scoreEx(e, true, null); Audio_.tone("ok"); nextEx(); };
+  };
+}
+
+function finish() {
+  const acc = SS.right + SS.wrong ? Math.round(SS.right / (SS.right + SS.wrong) * 100) : 100;
+  const bonus = SS.kind === "lesson" ? 10 : SS.kind === "review" ? 5 : 5;
+  const xp = SS.xp + bonus;
+  addXp(xp);
+  if (SS.lesson) { S.done[SS.lesson.id] = Math.max(S.done[SS.lesson.id] || 0, acc); SS.lesson.items.forEach(learn); }
+  if (SS.wb) S.wbDone[SS.wb] = Math.max(S.wbDone[SS.wb] || 0, acc);
+  S.last = Date.now(); S.lastSave = Date.now();
+  scheduleSave();
+  const secs = Math.round((Date.now() - SS.t0) / 1000);
+  const goalHit = (S.xp[today()] || 0) >= S.set.goal;
+  Audio_.tone("done");
+  const onDone = SS.onDone;
+  $("#sess").innerHTML = `<div class="done"><div class="donemascot">🦚</div>
+    <div class="perfect">${acc === 100 ? "PERFECT!" : acc >= 80 ? "すばらしい！" : "クリア！"}</div>
+    <div class="burst te">శభాష్!</div><div class="muted">シャバーシュ！＝よくやった</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><span class="xppill">⚡ +${xp} XP</span><span class="xppill" style="background:var(--ok-soft);color:var(--ok-dark)">🎯 ${acc}%</span><span class="xppill" style="background:var(--sky-soft);color:var(--sky-dark)">⏱ ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}</span></div>
+    ${goalHit ? `<div class="card" style="width:100%;display:flex;gap:8px;align-items:center;justify-content:center">${I.flame}<b>今日の目標を達成！ 連続 ${streak()} 日</b></div>` : `<div class="muted">今日の目標まで あと ${Math.max(0, S.set.goal - (S.xp[today()] || 0))} XP</div>`}
+    <button class="btn" id="s-end" style="width:100%">つづける</button></div>`;
+  $("#s-end").onclick = () => { closeSession(); if (onDone) onDone(); };
+}
+
+/* ============ 起動 ============ */
+(async function boot() {
+  loadLocal();
+  try { await loadData(); } catch (e) { $("#app").innerHTML = `<div class="loading">データを読み込めませんでした。ページを開き直してください。</div>`; return; }
+  render();
+  connectStore();
+  try { navigator.storage?.persist?.(); } catch (e) {}
+  if ("serviceWorker" in navigator && location.protocol === "https:" && !/claude/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(() => {});
+  document.addEventListener("visibilitychange", () => { if (document.hidden) flush(); });
+})();
+</script>
+</body></html>
