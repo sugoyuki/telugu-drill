@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
 <style>
 /* 白い地に青を主役1色。正解=緑、まちがい=赤、XP・連続日数=黄。レッスンは全画面カード＋下の大きなボタン */
 :root{
@@ -379,6 +379,99 @@ ruby rt.ro{font-size:12px;color:var(--sub)}
 .lbar{width:220px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .lbar i{display:block;height:100%;width:40%;background:#ffa62b;border-radius:3px;animation:lb 1.2s ease-in-out infinite}
 @keyframes lb{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+
+/* ログイン画面 */
+.login{position:fixed;inset:0;z-index:60;background:linear-gradient(180deg,#fff4e0 0%,#fff 55%);display:flex;justify-content:center;overflow-y:auto;padding:calc(30px + env(safe-area-inset-top,0px)) 24px 30px}
+.login-in{width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px;text-align:center}
+.login-art{font-size:88px;line-height:1}
+.login h1{margin:0;font-size:28px}
+.login input{font:inherit;font-size:17px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:17px;padding:14px;border-radius:16px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.gbtn span{font-family:Arial;font-weight:900;color:#4285f4;font-size:20px}
+.or{display:flex;align-items:center;gap:10px;color:var(--sub);font-size:13px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.lg-row{display:flex;gap:10px}
+.ilinkb{background:none;border:0;color:var(--sub);font-size:14px;text-decoration:underline;padding:6px}
+.lg-msg{color:var(--bad);font-size:14px;min-height:1.2em}
+
+/* ===== 仕上げのデザイン（SuperChinese 風：やわらかい影・丸ゴシック・3Dイラスト・街並み） ===== */
+:root{
+  --bg:#f5f6fb; --card:#ffffff; --surface:#eef0f7; --ink:#1f2433; --sub:#7b8194; --line:#e6e8f0; --line2:#d6d9e4;
+  --primary:#ff9a1f; --primary-dark:#e47d00; --primary-soft:#fff2df;
+  --sky:#3ea8f5; --sky-dark:#1f86d1; --sky-soft:#e6f4fe;
+  --shadow:0 8px 24px rgba(40,50,90,.08); --shadow-s:0 3px 10px rgba(40,50,90,.07);
+  --f-ui:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;
+  --hb1:#cfeefc;--hb2:#eaf7fd;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#10131b;--card:#1a1f2b;--surface:#222838;--ink:#eef0f6;--sub:#9aa1b5;--line:#2a3142;--line2:#384055;--primary:#ffa53a;--primary-dark:#d9821c;--primary-soft:#3a2a12;--shadow:0 8px 24px rgba(0,0,0,.35);--shadow-s:0 3px 10px rgba(0,0,0,.3);--hb1:#102536;--hb2:#121a26}}
+:root[data-theme="dark"]{--bg:#10131b;--card:#1a1f2b;--surface:#222838;--ink:#eef0f6;--sub:#9aa1b5;--line:#2a3142;--line2:#384055;--primary:#ffa53a;--primary-dark:#d9821c;--primary-soft:#3a2a12;--shadow:0 8px 24px rgba(0,0,0,.35);--shadow-s:0 3px 10px rgba(0,0,0,.3);--hb1:#102536;--hb2:#121a26}
+body{font-family:var(--f-ui);font-weight:500;letter-spacing:.01em}
+img.e3d{width:1.15em;height:1.15em;vertical-align:-.2em;object-fit:contain;display:inline-block}
+.btn{border-radius:999px;box-shadow:0 6px 14px color-mix(in srgb,var(--primary) 35%,transparent);font-weight:800}
+.btn:active{transform:translateY(1px) scale(.99);box-shadow:0 2px 6px color-mix(in srgb,var(--primary) 30%,transparent)}
+.btn.ghost{background:var(--card);border:0;color:var(--ink);box-shadow:var(--shadow-s)}
+.btn.white{background:#fff;color:var(--primary-dark);box-shadow:var(--shadow-s)}
+.btn:disabled{box-shadow:none}
+.card,.stat,.urow,.lrow,.opt,.tile,.intro,.reveal,.pill,.deck,.lvswitch{border:0 !important;box-shadow:var(--shadow-s);background:var(--card)}
+.card{border-radius:22px}
+.pill{border-radius:999px}
+.opt{border-radius:20px;border:2px solid transparent !important}
+.opt.sel{border-color:var(--sky) !important;background:var(--sky-soft);box-shadow:0 0 0 0 transparent}
+.opt.ok{border-color:var(--ok) !important;background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad) !important;background:var(--bad-soft)}
+.tile{border-radius:14px}
+.tile.used{background:var(--surface);box-shadow:none}
+/* 上のバーとタブ */
+.top{border-bottom:0;background:transparent}
+.chip{background:var(--card);border-radius:999px;padding:4px 12px 4px 8px;box-shadow:var(--shadow-s)}
+.robtn{border:0;box-shadow:var(--shadow-s);background:var(--card);border-radius:999px;padding:6px 12px}
+.robtn.on{background:var(--primary-soft);color:var(--primary-dark)}
+.tabs{margin:0 12px calc(10px + env(safe-area-inset-bottom,0px));padding:6px;border:0;border-radius:26px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(40,50,90,.14)}
+.tabs button{border-radius:20px;padding:6px 0 4px}
+.tabs button.on{background:var(--primary-soft);color:var(--primary-dark)}
+#app{background:var(--bg)}
+/* ホームの街並み */
+.home-bg{background:none;position:relative;isolation:isolate}
+.home-bg::before{content:"";position:absolute;inset:0 0 auto 0;height:100%;z-index:-1;background:linear-gradient(180deg,var(--hb1) 0%,var(--hb2) 420px,var(--bg) 1100px)}
+.scene{position:absolute;left:0;right:0;top:120px;height:300px;z-index:-1;opacity:.55;pointer-events:none}
+.scene svg{width:100%;height:100%}
+.lvhead .mascot{font-size:78px}
+.lvswitch{border-radius:999px;padding:8px 18px}
+.lvsub{border:0;box-shadow:var(--shadow-s)}
+.partlbl{border:0;box-shadow:var(--shadow-s);background:var(--card)}
+.trail{position:relative}
+.trail::before{content:"";position:absolute;left:50%;top:40px;bottom:40px;border-left:4px dotted color-mix(in srgb,var(--sky) 45%,transparent);transform:translateX(-50%);z-index:-1}
+.topic .ic{background:#fff !important;box-shadow:0 10px 22px rgba(40,50,90,.14);border:6px solid var(--uc,#fff)}
+.topic .ic img.e3d{width:58px;height:58px}
+.topic .ic.prog::before{inset:-14px}
+.topic .lbl{background:color-mix(in srgb,var(--card) 80%,transparent);border-radius:12px;padding:2px 8px}
+.resume{border:0;box-shadow:0 12px 30px rgba(40,50,90,.16);border-radius:24px;bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+.resume .go{background:var(--primary);box-shadow:0 6px 14px color-mix(in srgb,var(--primary) 35%,transparent)}
+.resume .ic img.e3d,.uhead-ic img.e3d,.sheet-h .ic img.e3d{width:70%;height:70%}
+.ihero-e img.e3d{width:150px;height:150px}
+.lrow2 .sq img.e3d,.sq.big img.e3d{width:60%;height:60%}
+.sp-ic img.e3d{width:60%;height:60%}
+.piccard .pe img.e3d{width:84px;height:84px}
+.donemascot img.e3d{width:150px;height:150px}
+.login-art img.e3d{width:130px;height:130px}
+.mascot img.e3d{width:96px;height:96px}
+.uhead{background:linear-gradient(180deg,color-mix(in srgb,var(--uc) 22%,var(--bg)),var(--bg))}
+.uhead-ic{background:#fff !important;box-shadow:var(--shadow)}
+.lrow2{border-bottom:0;background:var(--card);border-radius:20px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow-s)}
+.sbar{height:12px;background:var(--surface)}
+.foot{border-top:0;box-shadow:0 -6px 20px rgba(40,50,90,.06)}
+.foot.ok,.foot.bad{border-radius:26px 26px 0 0}
+.sess{background:var(--bg)}
+.newtag{border-radius:999px}
+.bigspk{border-radius:50%;box-shadow:0 8px 18px color-mix(in srgb,var(--sky) 35%,transparent)}
+.slow{border-radius:50%;border:0;box-shadow:var(--shadow-s);background:var(--card)}
+.spk{border-radius:50%}
+.vt{letter-spacing:.02em}
+.gpoint{border:0;background:var(--primary-soft);box-shadow:inset 4px 0 0 var(--primary)}
+.gtable{border:0;box-shadow:var(--shadow-s);background:var(--card)}
+.login{background:linear-gradient(180deg,#cfeefc 0%,#fff6e8 60%,var(--bg) 100%)}
+.login input{border:0;box-shadow:var(--shadow-s)}
+.gbtn{border:0;box-shadow:var(--shadow-s)}
 </style>
 
 <div id="app"><div class="loading"><div style="font-size:84px">🦚</div><div class="lbar"><i></i></div><div class="muted" style="max-width:300px">テルグ語は約8,000万人が話す、インドで4番目に話者の多い言葉。母音で終わる響きから「東洋のイタリア語」とも呼ばれます。</div></div></div>
@@ -475,7 +568,7 @@ function loadLocal() { try { const j = JSON.parse(window.__NATIVE_STATE__ || loc
 function saveLocal() { const j = JSON.stringify(S); try { localStorage.setItem(LS, j); } catch (e) {} try { window.webkit?.messageHandlers?.save?.postMessage(j); } catch (e) {} }
 function bucketOf(id) { const m = /^([a-z])(\d+)/.exec(id); return m ? m[1] + Math.floor(+m[2] / 1000) : "x"; }
 function markSrs(id) { dirty.add("srs-" + bucketOf(id)); }
-function scheduleSave() { saveLocal(); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 1500); }
+function scheduleSave() { S.lastSave = Date.now(); saveLocal(); clearTimeout(saveTimer); saveTimer = setTimeout(flush, 1500); Cloud.schedule(); }
 async function flush() {
   if (!DB || !UID) return;
   const base = "data/users/" + UID + "/";
@@ -511,6 +604,86 @@ async function connectStore() {
     } else { Object.keys(S.srs).forEach(markSrs); flush(); }
   } catch (e) { /* 端末内の記録だけで続ける */ }
 }
+
+
+/* ============ クラウド保存（Firebase）：ログイン・同期・毎日のバックアップ ============ */
+const Cloud = {
+  user: null, ready: false, status: "", timer: null, lastBackupDay: null,
+  ok() { return !!(window.FIREBASE_CONFIG && window.firebase && firebase.apps); },
+  init() {
+    if (!this.ok()) return false;
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    this.auth = firebase.auth(); this.db = firebase.firestore();
+    try { this.db.enablePersistence({ synchronizeTabs: true }).catch(() => {}); } catch (e) {}
+    this.auth.onAuthStateChanged(async u => {
+      this.user = u; this.ready = true;
+      if (u) { await this.pull(); hideLogin(); } else if (!S.set.guest) showLogin();
+      render();
+    });
+    return true;
+  },
+  ref() { return this.db.collection("users").doc(this.user.uid); },
+  async pull() {
+    try {
+      this.status = "同期中…";
+      const snap = await this.ref().get();
+      if (snap.exists && snap.data().s) {
+        const remote = JSON.parse(snap.data().s);
+        mergeInto(S, remote);
+      }
+      saveLocal(); await this.push(true);
+      this.status = "保存済み";
+    } catch (e) { this.status = "オフライン（この端末に保存中）"; }
+  },
+  async push(force) {
+    if (!this.user) return;
+    try {
+      const body = JSON.stringify(S);
+      await this.ref().set({ s: body, t: firebase.firestore.FieldValue.serverTimestamp(), v: 1, email: this.user.email || "" }, { merge: true });
+      const d = new Date().toISOString().slice(0, 10);
+      if (force || this.lastBackupDay !== d) {
+        await this.ref().collection("backups").doc(d).set({ s: body, t: firebase.firestore.FieldValue.serverTimestamp() });
+        this.lastBackupDay = d;
+      }
+      this.status = "保存済み " + new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+    } catch (e) { this.status = "オフライン（この端末に保存中・あとで送ります）"; }
+  },
+  schedule() { if (!this.user) return; clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), 3000); },
+};
+/* 2つの記録をまとめる：どちらかで進んだ分は失わない */
+function mergeInto(A, B) {
+  if (!B) return;
+  for (const d in B.xp || {}) A.xp[d] = Math.max(A.xp[d] || 0, B.xp[d]);
+  for (const k in B.done || {}) A.done[k] = Math.max(A.done[k] ?? 0, B.done[k]);
+  for (const k in B.wbDone || {}) A.wbDone[k] = Math.max(A.wbDone[k] ?? 0, B.wbDone[k]);
+  for (const k in B.miss || {}) A.miss[k] = Math.max(A.miss[k] || 0, B.miss[k]);
+  for (const id in B.srs || {}) { const a = A.srs[id], b = B.srs[id]; if (!a || (b[3] || 0) > (a[3] || 0) || ((b[3] || 0) === (a[3] || 0) && b[1] > a[1])) A.srs[id] = b; }
+  if ((B.lastSave || 0) > (A.lastSave || 0)) { A.set = Object.assign({}, A.set, B.set || {}); }
+  A.lastSave = Math.max(A.lastSave || 0, B.lastSave || 0);
+}
+function showLogin(msg) {
+  if ($("#login")) return;
+  const el = document.createElement("div"); el.id = "login"; el.className = "login";
+  el.innerHTML = `<div class="login-in"><div class="login-art">🦚</div><h1>テルグ語ドリル</h1><p class="muted">ログインすると、学習の記録がクラウドに保存されて、どの端末でも続きから学べます。</p>
+    <button class="gbtn" id="lg-google"><span>G</span>Googleでログイン</button>
+    <div class="or"><span>または</span></div>
+    <input id="lg-mail" type="email" autocomplete="email" placeholder="メールアドレス">
+    <input id="lg-pass" type="password" autocomplete="current-password" placeholder="パスワード（6文字以上）">
+    <div class="lg-row"><button class="btn" id="lg-in" style="flex:1">ログイン</button><button class="btn ghost" id="lg-up" style="flex:1">新規登録</button></div>
+    <button class="ilinkb" id="lg-reset">パスワードを忘れた</button>
+    <div class="lg-msg" id="lg-msg">${esc(msg || "")}</div>
+    <button class="ilinkb" id="lg-guest">ログインせずに使う（この端末だけに保存）</button></div>`;
+  document.body.appendChild(el);
+  const m = t => { $("#lg-msg").textContent = t; };
+  const err = e => m(({ "auth/invalid-credential": "メールアドレスかパスワードが違います", "auth/wrong-password": "パスワードが違います", "auth/user-not-found": "このメールアドレスは登録されていません", "auth/email-already-in-use": "このメールアドレスはもう登録されています。ログインしてください", "auth/weak-password": "パスワードは6文字以上にしてください", "auth/invalid-email": "メールアドレスの形が正しくありません", "auth/popup-blocked": "ポップアップが止められました。もう一度押してください", "auth/network-request-failed": "通信できません。電波のある所でもう一度" })[e.code] || "うまくいきませんでした（" + e.code + "）");
+  const mail = () => $("#lg-mail").value.trim(), pass = () => $("#lg-pass").value;
+  $("#lg-google").onclick = () => { const p = new firebase.auth.GoogleAuthProvider(); Cloud.auth.signInWithPopup(p).catch(e => { if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") Cloud.auth.signInWithRedirect(p); else err(e); }); };
+  $("#lg-in").onclick = () => Cloud.auth.signInWithEmailAndPassword(mail(), pass()).catch(err);
+  $("#lg-up").onclick = () => Cloud.auth.createUserWithEmailAndPassword(mail(), pass()).catch(err);
+  $("#lg-reset").onclick = () => { if (!mail()) return m("メールアドレスを入れてから押してください"); Cloud.auth.sendPasswordResetEmail(mail()).then(() => m("再設定のメールを送りました")).catch(err); };
+  $("#lg-guest").onclick = () => { S.set.guest = true; saveLocal(); hideLogin(); };
+}
+function hideLogin() { const l = $("#login"); if (l) l.remove(); }
 
 /* ============ 復習の間隔（忘れかけた頃にもう一度） ============ */
 const GAPS = [0, 1, 2, 4, 7, 14, 30, 60, 120];
@@ -641,7 +814,18 @@ function vHome(v) {
   const L = curLevel(), nx = nextLesson(L.id);
   const curU = nx ? nx[0] : null;
   const totalL = L.units.reduce((a, u) => a + u.lessons.length, 0), doneL = L.units.reduce((a, u) => a + unitProgress(u)[0], 0);
-  let h = `<div class="home-bg"><div class="lvhead"><div class="mascot">🦚</div>
+  let h = `<div class="home-bg"><div class="scene" aria-hidden="true"><svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
+  <g fill="#ffffff" opacity=".9"><ellipse cx="70" cy="50" rx="34" ry="12"/><ellipse cx="92" cy="44" rx="22" ry="12"/><ellipse cx="320" cy="80" rx="40" ry="12"/><ellipse cx="345" cy="72" rx="22" ry="11"/></g>
+  <path d="M0 230 Q60 170 120 205 T250 190 T400 210 V300 H0Z" fill="#9fd3ee"/>
+  <g fill="#7cc0e4"><rect x="20" y="168" width="14" height="40"/><path d="M18 168 L27 150 L36 168Z"/><rect x="60" y="180" width="70" height="26"/><path d="M60 180 h70 l-8 -12 h-54z"/></g>
+  <g fill="#5aaedb" transform="translate(240 92)">
+    <rect x="0" y="40" width="10" height="120" rx="2"/><rect x="90" y="40" width="10" height="120" rx="2"/>
+    <circle cx="5" cy="36" r="9"/><circle cx="95" cy="36" r="9"/><rect x="3" y="18" width="4" height="12"/><rect x="93" y="18" width="4" height="12"/>
+    <rect x="8" y="90" width="84" height="70"/><path d="M28 160 v-34 a22 22 0 0 1 44 0 v34z" fill="#9fd3ee"/>
+    <rect x="8" y="78" width="84" height="12"/><path d="M30 78 a20 14 0 0 1 40 0z"/>
+  </g>
+  <path d="M0 255 Q100 230 200 250 T400 245 V300 H0Z" fill="#c6e6f5"/>
+</svg></div><div class="lvhead"><div class="mascot">🦚</div>
     <button class="lvswitch" id="b-lv">レベル${L.id}　${esc(L.name)} <span>▾</span></button>
     <div class="muted" style="font-size:13px">${esc(L.sub)}</div><div class="lvsub">${doneL} / ${totalL} レッスン</div></div><div class="trail">`;
   const pattern = [1, 1, 2];
@@ -655,7 +839,7 @@ function vHome(v) {
     h += `<div class="row">${row.map(u => {
       const [d, nn] = unitProgress(u); const deg = Math.round(d / nn * 360);
       const cur = curU && u.id === curU.id;
-      return `<button class="topic" data-unit="${u.id}"><span class="ic ${d ? "prog" : ""} ${cur ? "cur" : ""}" style="background:${uColor(u)};--deg:${deg}deg">${u.emoji}${d === nn ? '<span class="crown">👑</span>' : ""}</span>
+      return `<button class="topic" data-unit="${u.id}"><span class="ic ${d ? "prog" : ""} ${cur ? "cur" : ""}" style="--uc:${uColor(u)};--deg:${deg}deg">${u.emoji}${d === nn ? '<span class="crown">👑</span>' : ""}</span>
         <span class="lbl"><small>ユニット ${u.no}</small>${esc(u.title)}</span></button>`;
     }).join("")}</div>`;
   }
@@ -818,11 +1002,17 @@ function vMe(v) {
       <div class="toggle"><span>音声の速さ</span><div class="seg" style="margin:0;width:180px">${[.8, 1, 1.2].map(r => `<button data-rate="${r}" class="${S.set.rate == r ? "on" : ""}">${r}</button>`).join("")}</div></div>
       <div class="toggle"><span>1日の目標</span><div class="seg" style="margin:0;width:180px">${[20, 30, 50].map(r => `<button data-goal="${r}" class="${S.set.goal == r ? "on" : ""}">${r}</button>`).join("")}</div></div>
     </div>
+    ${window.FIREBASE_CONFIG ? `<div class="card"><b>アカウント</b>${Cloud.user ? `<p class="muted">${esc(Cloud.user.email || Cloud.user.displayName || "ログイン中")}<br>クラウド：${esc(Cloud.status || "保存済み")}（毎日のバックアップあり）</p>
+      <div style="display:flex;gap:10px"><button class="btn ghost" id="b-sync" style="flex:1">今すぐ保存</button><button class="btn ghost" id="b-out" style="flex:1">ログアウト</button></div>`
+      : `<p class="muted">ログインしていません。記録はこの端末だけにあります。</p><button class="btn" id="b-login" style="width:100%">ログインしてクラウドに保存</button>`}</div>` : ""}
     <div class="card"><b>記録のバックアップ</b><p class="muted">学習の記録はこの端末に保存されています。機種変更のときや念のために、ファイルに書き出しておけます。</p>
       <div style="display:flex;gap:10px"><button class="btn ghost" id="b-exp" style="flex:1">書き出す</button><label class="btn ghost" style="flex:1;text-align:center">読み込む<input type="file" id="b-imp" accept="application/json,.json" hidden></label></div></div>`;
   v.querySelectorAll("[data-sw]").forEach(b => b.onclick = () => { S.set[b.dataset.sw] = !S.set[b.dataset.sw]; scheduleSave(); render(); });
   v.querySelectorAll("[data-rate]").forEach(b => b.onclick = () => { S.set.rate = +b.dataset.rate; scheduleSave(); render(); });
   v.querySelectorAll("[data-goal]").forEach(b => b.onclick = () => { S.set.goal = +b.dataset.goal; scheduleSave(); render(); });
+  const bs = $("#b-sync"); if (bs) bs.onclick = async () => { await Cloud.push(true); toast("クラウドに保存しました"); render(); };
+  const bo = $("#b-out"); if (bo) bo.onclick = async () => { await Cloud.push(true); await Cloud.auth.signOut(); toast("ログアウトしました（端末の記録は残っています）"); };
+  const bl = $("#b-login"); if (bl) bl.onclick = () => { S.set.guest = false; showLogin(); };
   $("#b-exp").onclick = () => {
     const blob = new Blob([JSON.stringify(S)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
@@ -1218,15 +1408,41 @@ function finish() {
   $("#s-end").onclick = () => { closeSession(); if (onDone) onDone(); };
 }
 
+
+/* ============ 絵文字 → 3Dイラスト（Fluent Emoji 3D, MIT） ============ */
+let EMO = null, EMO_RE = null;
+const emoHex = g => [...g].map(c => c.codePointAt(0)).filter(c => c !== 0xfe0f).map(c => c.toString(16)).join("-");
+async function loadEmoji() {
+  try { const list = await fetch("data/emoji.json").then(r => r.json()); EMO = new Set(list); } catch (e) { EMO = new Set(); return; }
+  EMO_RE = /(\p{Extended_Pictographic}(️|‍\p{Extended_Pictographic}️?)*)/gu;
+  emojify(document.body);
+  new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => emojify(n.nodeType === 3 ? n.parentNode : n)))).observe(document.body, { childList: true, subtree: true });
+}
+function emojify(root) {
+  if (!EMO_RE || !root || root.nodeType !== 1 || root.closest?.("input,textarea,script,style")) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), hits = [];
+  while (w.nextNode()) { const t = w.currentNode; if (EMO_RE.test(t.nodeValue)) hits.push(t); EMO_RE.lastIndex = 0; }
+  hits.forEach(t => {
+    if (!t.parentNode || t.parentNode.closest("input,textarea,script,style,svg")) return;
+    const f = document.createDocumentFragment(); let last = 0, s = t.nodeValue, m; EMO_RE.lastIndex = 0;
+    while ((m = EMO_RE.exec(s))) {
+      const h = emoHex(m[0]); if (!EMO.has(h)) continue;
+      f.append(s.slice(last, m.index)); const img = document.createElement("img"); img.className = "e3d"; img.alt = m[0]; img.src = "img/e/" + h + ".png"; img.decoding = "async"; f.append(img); last = m.index + m[0].length;
+    }
+    if (last) { f.append(s.slice(last)); t.parentNode.replaceChild(f, t); }
+  });
+}
 /* ============ 起動 ============ */
 (async function boot() {
   loadLocal();
+  loadEmoji();
   try { await loadData(); } catch (e) { $("#app").innerHTML = `<div class="loading">データを読み込めませんでした。ページを開き直してください。</div>`; return; }
   render();
   connectStore();
+  if (!Cloud.init() && window.FIREBASE_CONFIG) showLogin("通信できないため、この端末だけで使います");
   try { navigator.storage?.persist?.(); } catch (e) {}
   if ("serviceWorker" in navigator && location.protocol === "https:" && !/claude/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(() => {});
-  document.addEventListener("visibilitychange", () => { if (document.hidden) flush(); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { flush(); Cloud.push(); } });
 })();
 </script>
 </body></html>
