@@ -3,6 +3,7 @@
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="テルグ語ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>:root{padding-top:env(safe-area-inset-top,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>window.AUDIO_BASE="https://sugoyuki.github.io/telugu-audio/";</script>
 </head><body>
 <title>テルグ語ドリル</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -505,8 +506,8 @@ const PART_N = {1:"第1部　音と文字",2:"第2部　最初の会話",3:"第3
 /* ============ データ ============ */
 let C = null, CLIPS = {};
 async function loadData() {
-  const [c, k] = await Promise.all([fetch("data/course.json").then(r => r.json()), fetch("data/clips.json").then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
-  C = c; CLIPS = k;
+  const [c, k] = await Promise.all([fetch("data/course.json").then(r => r.json()), Promise.resolve({})]);
+  C = c; CLIPS = new Proxy({}, { get: (_, id) => (typeof id === "string" && clipSrc(id) && C.items[id]) ? [1] : undefined });
   C.units = [];
   C.levels.forEach(L => L.units.forEach((u, i) => {
     u.level = L.id; u.no = i + 1; C.units.push(u);
@@ -519,26 +520,28 @@ const curLevel = () => levelOf(S.set.level || 1);
 const item = id => C.items[id];
 
 /* ============ 音声（スプライトを Web Audio で切り出して再生） ============ */
+// 1つの単語・文 = 1つの音声ファイル（切り出しをしないので、押したものが必ず流れる）
+const AUDIO_BASE = window.AUDIO_BASE || "a/";
+function clipSrc(id) {
+  const m = /^([tqw])(\d{4})(e?)$/.exec(id); if (!m) return null;
+  return AUDIO_BASE + (m[1] === "t" ? "t/" + m[2] : m[1] === "q" ? "q/Q" + m[2] : "w/W" + m[2] + m[3]) + ".m4a";
+}
 const Audio_ = {
-  ctx: null, bufs: {}, loading: {}, cur: null,
-  ensure() { if (!this.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) this.ctx = new AC(); } if (this.ctx && this.ctx.state === "suspended") this.ctx.resume(); return this.ctx; },
-  async buf(name) {
-    if (this.bufs[name]) return this.bufs[name];
-    if (!this.loading[name]) this.loading[name] = fetch("audio/" + name + ".mp4").then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })
-      .then(ab => new Promise((ok, ng) => this.ctx.decodeAudioData(ab, ok, ng))).then(b => (this.bufs[name] = b));
-    return this.loading[name];
-  },
-  preload(ids) { if (!this.ensure()) return; const names = new Set(ids.map(i => CLIPS[i]?.[0]).filter(Boolean)); names.forEach(n => this.buf(n).catch(() => {})); },
-  async play(id, slow) {
-    const c = CLIPS[id]; if (!c || !this.ensure()) return false;
-    try {
-      const b = await this.buf(c[0]);
-      if (this.cur) try { this.cur.stop(); } catch (e) {}
-      const s = this.ctx.createBufferSource(); s.buffer = b;
-      const rate = (slow ? 0.72 : 1) * (S.set.rate || 1); s.playbackRate.value = rate;
-      s.connect(this.ctx.destination); s.start(0, c[1], c[2]); this.cur = s;
-      return new Promise(r => { s.onended = () => r(true); });
-    } catch (e) { return false; }
+  ctx: null, cur: null, cache: {},
+  ensure() { if (!this.ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) this.ctx = new AC(); } if (this.ctx && this.ctx.state === "suspended") this.ctx.resume(); return this.ctx || true; },
+  el(id) { const src = clipSrc(id); if (!src) return null; let a = this.cache[id]; if (!a) { a = new Audio(); a.preload = "auto"; a.src = src; this.cache[id] = a; const keys = Object.keys(this.cache); if (keys.length > 80) delete this.cache[keys[0]]; } return a; },
+  preload(ids) { ids.slice(0, 30).forEach(id => this.el(id)); },
+  play(id, slow) {
+    const a = this.el(id); if (!a) return Promise.resolve(false);
+    if (this.cur && this.cur !== a) { try { this.cur.pause(); } catch (e) {} }
+    try { a.pause(); a.currentTime = 0; } catch (e) {}
+    a.playbackRate = (slow ? 0.72 : 1) * (S.set.rate || 1);
+    try { a.preservesPitch = true; a.webkitPreservesPitch = true; } catch (e) {}
+    this.cur = a;
+    return new Promise(res => {
+      a.onended = () => res(true); a.onerror = () => res(false);
+      const p = a.play(); if (p && p.catch) p.catch(() => res(false));
+    });
   },
   tone(kind) {
     if (!S.set.sfx || !this.ensure()) return;
