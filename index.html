@@ -477,6 +477,9 @@ img.e3d{width:1.15em;height:1.15em;vertical-align:-.2em;object-fit:contain;displ
 .login{background:linear-gradient(180deg,#cfeefc 0%,#fff6e8 60%,var(--bg) 100%)}
 .login input{border:0;box-shadow:var(--shadow-s)}
 .gbtn{border:0;box-shadow:var(--shadow-s)}
+
+.sback{font-size:30px;line-height:1;font-weight:700;color:var(--sub);padding:0 6px}
+.sback:disabled{opacity:.25}
 </style>
 
 <div id="app"><div class="loading"><div style="font-size:84px">🦚</div><div class="lbar"><i></i></div><div class="muted" style="max-width:300px">テルグ語は約8,000万人が話す、インドで4番目に話者の多い言葉。母音で終わる響きから「東洋のイタリア語」とも呼ばれます。</div></div></div>
@@ -1091,8 +1094,9 @@ function runSession(cfg) {
 function closeSession() { const s = $("#sess"); if (s) s.remove(); SS = null; render(); }
 function sessShell(body, footHtml) {
   const prog = SS.total ? Math.min(1, SS.done / SS.total) : 0;
-  $("#sess").innerHTML = `<div class="sess-top"><button class="iconbtn" id="s-x" aria-label="やめる">${I.x}</button><div class="sbar ${SS.combo >= 3 ? "hot" : ""}"><i style="width:${prog * 100}%"></i><span class="combo">${SS.combo >= 3 ? SS.combo + "連続正解！" : ""}</span></div></div>
+  $("#sess").innerHTML = `<div class="sess-top"><button class="iconbtn" id="s-x" aria-label="やめる">${I.x}</button><button class="iconbtn sback" id="s-back" aria-label="前の画面に戻る" ${(SS.hist || []).length > 1 ? "" : "disabled"}>‹</button><div class="sbar ${SS.combo >= 3 ? "hot" : ""}"><i style="width:${prog * 100}%"></i><span class="combo">${SS.combo >= 3 ? SS.combo + "連続正解！" : ""}</span></div></div>
     <div class="sbody" id="sb">${body}</div><div class="foot" id="sf">${footHtml}</div>`;
+  $("#s-back").onclick = goBack;
   $("#s-x").onclick = () => { const back = SS && SS.onDone; flush(); Cloud.push(); closeSession(); if (back) back(); };
 }
 function nextEx() {
@@ -1100,11 +1104,20 @@ function nextEx() {
   const e = SS.queue.shift();
   if (!e) return finish();
   SS.cur = e; SS.answered = false;
+  if (e.t !== "splash") (SS.hist = SS.hist || []).push(e);
   RENDER_EX[e.t](e);
   if (SS.timed && !["splash", "intro", "sintro", "gram", "dshow"].includes(e.t)) {
     const sb = $("#sb"); sb.insertAdjacentHTML("afterbegin", `<div class="tbar"><i style="animation-duration:${SS.timed}s"></i></div>`);
     SS.timer = setTimeout(() => { if (SS && !SS.answered && SS.cur === e) { const it = item(e.id); scoreEx(e, false, e.id); answerFoot(false, e, `<div class="muted">時間切れ</div>${it ? `<div>${rubyH(it)}</div><small>${esc(it.ja)}</small>` : ""}`, e.id); } }, SS.timed * 1000);
   }
+}
+function goBack() {
+  if (!SS || !SS.hist || SS.hist.length < 2) return;
+  clearTimeout(SS.timer);
+  const cur = SS.hist.pop(), prev = SS.hist.pop();
+  SS.queue.unshift({ ...cur, again: cur.again || SS.answered });
+  SS.queue.unshift({ ...prev, again: true });
+  nextEx();
 }
 function autoSay(id) { if (S.set.auto && CLIPS[id]) setTimeout(() => Audio_.play(id), 250); }
 
@@ -1135,6 +1148,7 @@ document.addEventListener("click", e => {
   if (g && SS && SS.gram && !e.target.closest("[data-say]") && !e.target.closest(".tile") && !e.target.closest(".opt")) showGramModal();
 });
 function scoreEx(e, ok, srsId) {
+  if (e.again) { if (ok) { SS.combo++; } else { SS.combo = 0; } return; }
   if (e.retry) { if (ok) SS.done++; }
   else { if (ok) { SS.right++; SS.done++; } else SS.wrong++; }
   if (ok) { SS.combo++; SS.best = Math.max(SS.best, SS.combo); SS.xp += 1 + (SS.combo >= 5 ? 1 : 0); }
