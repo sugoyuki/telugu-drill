@@ -623,6 +623,7 @@ const Cloud = {
     this.auth = firebase.auth(); this.db = firebase.firestore();
     try { this.db.enablePersistence({ synchronizeTabs: true }).catch(() => {}); } catch (e) {}
     this.auth.onAuthStateChanged(async u => {
+      if (u && !(await allowedUser(u))) { await this.auth.signOut(); this.user = null; showLogin("このアカウントでは使えません。登録済みの Google アカウントでログインしてください。"); return; }
       this.user = u; this.ready = true;
       if (u) { await this.pull(); hideLogin(); } else if (!S.set.guest) showLogin();
       render();
@@ -657,6 +658,13 @@ const Cloud = {
   },
   schedule() { if (!this.user) return; clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), 3000); },
 };
+const ALLOWED = ["fd1865edde0a93aebc884b0f8cf93c249d572a7f62df65e0b1740dc9a356c86f"];
+async function allowedUser(u) {
+  if (!u.email || !u.emailVerified) return false;
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(u.email.trim().toLowerCase()));
+  const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  return ALLOWED.includes(hex);
+}
 /* 2つの記録をまとめる：どちらかで進んだ分は失わない */
 function mergeInto(A, B) {
   if (!B) return;
@@ -671,23 +679,14 @@ function mergeInto(A, B) {
 function showLogin(msg) {
   if ($("#login")) return;
   const el = document.createElement("div"); el.id = "login"; el.className = "login";
-  el.innerHTML = `<div class="login-in"><div class="login-art">🦚</div><h1>テルグ語ドリル</h1><p class="muted">ログインすると、学習の記録がクラウドに保存されて、どの端末でも続きから学べます。</p>
+  el.innerHTML = `<div class="login-in"><div class="login-art">🦚</div><h1>テルグ語ドリル</h1><p class="muted">登録済みの Google アカウントでログインすると、学習の記録がクラウドに保存されて、どの端末でも続きから学べます。</p>
     <button class="gbtn" id="lg-google"><span>G</span>Googleでログイン</button>
-    <div class="or"><span>または</span></div>
-    <input id="lg-mail" type="email" autocomplete="email" placeholder="メールアドレス">
-    <input id="lg-pass" type="password" autocomplete="current-password" placeholder="パスワード（6文字以上）">
-    <div class="lg-row"><button class="btn" id="lg-in" style="flex:1">ログイン</button><button class="btn ghost" id="lg-up" style="flex:1">新規登録</button></div>
-    <button class="ilinkb" id="lg-reset">パスワードを忘れた</button>
     <div class="lg-msg" id="lg-msg">${esc(msg || "")}</div>
     <button class="ilinkb" id="lg-guest">ログインせずに使う（この端末だけに保存）</button></div>`;
   document.body.appendChild(el);
   const m = t => { $("#lg-msg").textContent = t; };
   const err = e => m(({ "auth/invalid-credential": "メールアドレスかパスワードが違います", "auth/wrong-password": "パスワードが違います", "auth/user-not-found": "このメールアドレスは登録されていません", "auth/email-already-in-use": "このメールアドレスはもう登録されています。ログインしてください", "auth/weak-password": "パスワードは6文字以上にしてください", "auth/invalid-email": "メールアドレスの形が正しくありません", "auth/popup-blocked": "ポップアップが止められました。もう一度押してください", "auth/network-request-failed": "通信できません。電波のある所でもう一度" })[e.code] || "うまくいきませんでした（" + e.code + "）");
-  const mail = () => $("#lg-mail").value.trim(), pass = () => $("#lg-pass").value;
   $("#lg-google").onclick = () => { const p = new firebase.auth.GoogleAuthProvider(); Cloud.auth.signInWithPopup(p).catch(e => { if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") Cloud.auth.signInWithRedirect(p); else err(e); }); };
-  $("#lg-in").onclick = () => Cloud.auth.signInWithEmailAndPassword(mail(), pass()).catch(err);
-  $("#lg-up").onclick = () => Cloud.auth.createUserWithEmailAndPassword(mail(), pass()).catch(err);
-  $("#lg-reset").onclick = () => { if (!mail()) return m("メールアドレスを入れてから押してください"); Cloud.auth.sendPasswordResetEmail(mail()).then(() => m("再設定のメールを送りました")).catch(err); };
   $("#lg-guest").onclick = () => { S.set.guest = true; saveLocal(); hideLogin(); };
 }
 function hideLogin() { const l = $("#login"); if (l) l.remove(); }
