@@ -478,8 +478,11 @@ img.e3d{width:1.15em;height:1.15em;vertical-align:-.2em;object-fit:contain;displ
 .login input{border:0;box-shadow:var(--shadow-s)}
 .gbtn{border:0;box-shadow:var(--shadow-s)}
 
-.sback{font-size:30px;line-height:1;font-weight:700;color:var(--sub);padding:0 6px}
-.sback:disabled{opacity:.25}
+.frow{display:flex;gap:12px;align-items:center}
+.fmain{flex:1;min-width:0}
+.fmain .btn{width:100%}
+.sback{width:56px;height:56px;border-radius:50%;border:0;background:var(--card);color:var(--sub);box-shadow:var(--shadow-s);display:grid;place-items:center;flex:none}
+.sback svg{width:24px;height:24px}
 </style>
 
 <div id="app"><div class="loading"><div style="font-size:84px">🦚</div><div class="lbar"><i></i></div><div class="muted" style="max-width:300px">テルグ語は約8,000万人が話す、インドで4番目に話者の多い言葉。母音で終わる響きから「東洋のイタリア語」とも呼ばれます。</div></div></div>
@@ -1094,9 +1097,9 @@ function runSession(cfg) {
 function closeSession() { const s = $("#sess"); if (s) s.remove(); SS = null; render(); }
 function sessShell(body, footHtml) {
   const prog = SS.total ? Math.min(1, SS.done / SS.total) : 0;
-  $("#sess").innerHTML = `<div class="sess-top"><button class="iconbtn" id="s-x" aria-label="やめる">${I.x}</button><button class="iconbtn sback" id="s-back" aria-label="前の画面に戻る" ${(SS.hist || []).length > 1 ? "" : "disabled"}>‹</button><div class="sbar ${SS.combo >= 3 ? "hot" : ""}"><i style="width:${prog * 100}%"></i><span class="combo">${SS.combo >= 3 ? SS.combo + "連続正解！" : ""}</span></div></div>
-    <div class="sbody" id="sb">${body}</div><div class="foot" id="sf">${footHtml}</div>`;
-  $("#s-back").onclick = goBack;
+  $("#sess").innerHTML = `<div class="sess-top"><button class="iconbtn" id="s-x" aria-label="やめる">${I.x}</button><div class="sbar ${SS.combo >= 3 ? "hot" : ""}"><i style="width:${prog * 100}%"></i><span class="combo">${SS.combo >= 3 ? SS.combo + "連続正解！" : ""}</span></div></div>
+    <div class="sbody" id="sb">${body}</div><div class="foot" id="sf"><div class="frow">${(SS.hist || []).length > 1 ? `<button class="sback" id="s-back" aria-label="前の画面に戻る"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>` : ""}<div class="fmain">${footHtml}</div></div></div>`;
+  const sbk = $("#s-back"); if (sbk) sbk.onclick = goBack;
   $("#s-x").onclick = () => { const back = SS && SS.onDone; flush(); Cloud.push(); closeSession(); if (back) back(); };
 }
 function nextEx() {
