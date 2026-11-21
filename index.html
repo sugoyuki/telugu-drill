@@ -1051,7 +1051,7 @@ function startLesson(lid) {
   else ex = makeExercises(l.items);
   const gram = l.kind === "grammar" ? l.gram.slice(0, 6).join("") : (u.lessons.find(x => x.kind === "grammar")?.gram.slice(0, 6).join("") || null);
   ex.unshift({ t: "splash", kind: l.kind });
-  runSession({ title: u.title, ex, kind: "lesson", lesson: l, unit: u, gram: l.kind === "test" ? null : gram, timed: l.kind === "test" ? 15 : 0 });
+  runSession({ title: u.title, ex, kind: "lesson", lesson: l, unit: u, gram: l.kind === "test" ? null : gram, timed: l.kind === "test" ? 15 : 0, onDone: () => openUnit(u.id) });
 }
 function testExercises(l) {
   const ids = shuffle(l.items).slice(0, 12);
@@ -1093,7 +1093,7 @@ function sessShell(body, footHtml) {
   const prog = SS.total ? Math.min(1, SS.done / SS.total) : 0;
   $("#sess").innerHTML = `<div class="sess-top"><button class="iconbtn" id="s-x" aria-label="やめる">${I.x}</button><div class="sbar ${SS.combo >= 3 ? "hot" : ""}"><i style="width:${prog * 100}%"></i><span class="combo">${SS.combo >= 3 ? SS.combo + "連続正解！" : ""}</span></div></div>
     <div class="sbody" id="sb">${body}</div><div class="foot" id="sf">${footHtml}</div>`;
-  $("#s-x").onclick = () => { flush(); closeSession(); };
+  $("#s-x").onclick = () => { const back = SS && SS.onDone; flush(); Cloud.push(); closeSession(); if (back) back(); };
 }
 function nextEx() {
   clearTimeout(SS.timer);
