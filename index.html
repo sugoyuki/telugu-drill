@@ -533,7 +533,7 @@ const item = id => C.items[id];
 // 1つの単語・文 = 1つの音声ファイル（切り出しをしないので、押したものが必ず流れる）
 const AUDIO_BASE = window.AUDIO_BASE || "a/";
 function clipSrc(id) {
-  const m = /^([tqw])(\d{4})(e?)$/.exec(id); if (!m) return null;
+  const m = /^([tqw])(\d{4,})(e?)$/.exec(id); if (!m) return null;
   return AUDIO_BASE + (m[1] === "t" ? "t/" + m[2] : m[1] === "q" ? "q/Q" + m[2] : "w/W" + m[2] + m[3]) + ".m4a";
 }
 const Audio_ = {
@@ -672,8 +672,17 @@ async function allowedUser(u) {
   return ALLOWED.includes(hex);
 }
 /* 2つの記録をまとめる：どちらかで進んだ分は失わない */
+/* コースの並びを直したとき、古いレッスンidの記録を新しいidへ移す（1回だけ） */
+const IDV = 2;
+function migrateIds(X) {
+  if (!X || !C || !C.alias || (X.idv || 1) >= IDV) return;
+  const nd = {};
+  for (const k in X.done || {}) { const t = C.alias[k] || k; nd[t] = Math.max(nd[t] ?? 0, X.done[k]); }
+  X.done = nd; X.idv = IDV;
+}
 function mergeInto(A, B) {
   if (!B) return;
+  migrateIds(B);
   for (const d in B.xp || {}) A.xp[d] = Math.max(A.xp[d] || 0, B.xp[d]);
   for (const k in B.done || {}) A.done[k] = Math.max(A.done[k] ?? 0, B.done[k]);
   for (const k in B.wbDone || {}) A.wbDone[k] = Math.max(A.wbDone[k] ?? 0, B.wbDone[k]);
@@ -736,22 +745,28 @@ function poolFor(id) {
   const same = Object.keys(C.items).filter(k => { const x = C.items[k]; return x.k === it.k && x.ja && k[0] === id[0]; });
   return same;
 }
+let PMAP = null;
+function knownItem(id) {
+  if (S.srs[id]) return true;
+  if (!PMAP) { PMAP = {}; for (const k in C.items) { const p = C.items[k].p; if (p) (PMAP[p] = PMAP[p] || []).push(k); } }
+  return (PMAP[item(id).p] || []).some(j => S.srs[j]);
+}
 function makeExercises(ids, { introNew = true } = {}) {
   const ex = [];
   const words = ids.filter(id => ["w", "c", "v"].includes(item(id).k));
   const sents = ids.filter(id => ["s", "d"].includes(item(id).k));
-  const pool = words.length >= 4 ? words : ids;
+  const wpool = id => words.length >= 4 ? words : poolFor(id);
   for (const id of words) {
-    const isNew = !S.srs[id];
+    const isNew = !knownItem(id), pool = wpool(id);
     if (introNew && isNew) ex.push({ t: "intro", id });
     const r = Math.random();
     ex.push({ t: item(id).em && r < .35 ? "pic" : r < .65 ? "mcq" : "listen", id, pool });
   }
   if (words.length >= 4) ex.push({ t: Math.random() < .5 ? "pairs" : "lpairs", ids: pick(words, Math.min(4, words.length)) });
-  for (const id of words) if (Math.random() < .5) ex.push({ t: "rev", id, pool });
+  for (const id of words) if (Math.random() < .5) ex.push({ t: "rev", id, pool: wpool(id) });
   for (const id of sents) {
     const it = item(id);
-    if (introNew && !S.srs[id] && it.tiles) ex.push({ t: "sintro", id });
+    if (introNew && !knownItem(id) && it.tiles) ex.push({ t: "sintro", id });
     const sp = sents.length >= 4 ? sents : poolFor(id);
     if (it.tiles && it.tiles.length >= 2 && it.tiles.length <= 10) {
       const r = Math.random();
@@ -1459,7 +1474,7 @@ function emojify(root) {
 (async function boot() {
   loadLocal();
   loadEmoji();
-  try { await loadData(); } catch (e) { $("#app").innerHTML = `<div class="loading">データを読み込めませんでした。ページを開き直してください。</div>`; return; }
+  try { await loadData(); migrateIds(S); S.idv = IDV; saveLocal(); } catch (e) { $("#app").innerHTML = `<div class="loading">データを読み込めませんでした。ページを開き直してください。</div>`; return; }
   render();
   connectStore();
   if (!Cloud.init() && window.FIREBASE_CONFIG) showLogin("通信できないため、この端末だけで使います");
