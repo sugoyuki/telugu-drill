@@ -673,11 +673,12 @@ async function allowedUser(u) {
 }
 /* 2つの記録をまとめる：どちらかで進んだ分は失わない */
 /* コースの並びを直したとき、古いレッスンidの記録を新しいidへ移す（1回だけ） */
-const IDV = 2;
+const IDV = 3;
 function migrateIds(X) {
   if (!X || !C || !C.alias || (X.idv || 1) >= IDV) return;
+  const map = C.alias[String(X.idv || 1)] || {};
   const nd = {};
-  for (const k in X.done || {}) { const t = C.alias[k] || k; nd[t] = Math.max(nd[t] ?? 0, X.done[k]); }
+  for (const k in X.done || {}) { const t = map[k] || k; nd[t] = Math.max(nd[t] ?? 0, X.done[k]); }
   X.done = nd; X.idv = IDV;
 }
 function mergeInto(A, B) {
