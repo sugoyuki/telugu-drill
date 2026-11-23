@@ -1,4 +1,4 @@
-const V = "td-202611231439";
+const V = "td-202611231455";
 const CORE = ["./", "index.html", "data/course.json", "data/emoji.json", "manifest.webmanifest", "icon-192.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("td-") && k !== V && k !== "td-audio").map(k => caches.delete(k)))).then(() => self.clients.claim())); });

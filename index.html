@@ -831,7 +831,7 @@ const lessonMin = l => l.kind === "test" ? "3-5" : l.kind === "grammar" ? "4-7" 
 const lessonXp = l => l.kind === "test" ? 15 : 10 + Math.min(10, l.items.length);
 function lessonName(u, l) { const same = u.lessons.filter(x => x.kind === l.kind); return KIND[l.kind][1] + (same.length > 1 && l.kind !== "test" ? " " + (same.indexOf(l) + 1) : ""); }
 function lessonSub(l) {
-  if (l.kind === "words") return l.items.slice(0, 6).map(id => item(id)?.p).filter(Boolean).join("，") + (l.items.length > 6 ? " …" : "");
+  if (l.kind === "words") return l.items.slice(0, 5).map(id => item(id)).filter(Boolean).map(it => `${it.p} (${(it.rh || "").replace(/<[^>]+>/g, "")})`).join(", ") + (l.items.length > 5 ? " …" : "");
   if (l.kind === "grammar") return l.title || "";
   if (l.kind === "dialogue") return l.title || "";
   if (l.kind === "test") return "学んだ内容をしっかり定着させよう（1問15秒）";
@@ -918,9 +918,9 @@ function openUnit(uid) {
 }
 function lessonIntro(lid) {
   const u = C.units.find(x => x.lessons.some(l => l.id === lid)), l = u.lessons.find(x => x.id === lid);
-  const list = l.kind === "words" ? l.items.map(id => `<span class="chipw"><span class="te">${item(id).th}</span> ${esc(item(id).ja)}</span>`).join("")
+  const list = l.kind === "words" ? l.items.map(id => `<span class="chipw"><span class="te">${item(id).th}</span> <span class="ro">${item(id).rh}</span> ${esc(item(id).ja)}</span>`).join("")
     : l.kind === "grammar" ? `<span class="chipw">${esc(l.title)}</span>` : l.kind === "test" ? `<span class="chipw">このユニットの単語・文から${Math.min(12, l.items.length)}問</span>`
-    : l.items.slice(0, 4).map(id => `<span class="chipw"><span class="te">${item(id).th}</span></span>`).join("");
+    : l.items.slice(0, 4).map(id => `<span class="chipw"><span class="te">${item(id).th}</span> <span class="ro">${item(id).rh}</span></span>`).join("");
   const el = document.createElement("div"); el.className = "sess"; el.id = "intro";
   el.innerHTML = `<div class="ihero" style="background:${uColor(u)}"><button class="iconbtn" id="i-x" aria-label="もどる" style="color:#fff">←</button><div class="ihero-e">${u.emoji}</div></div>
     <div class="icard"><span class="sq big" style="background:${KIND_C[l.kind]}">${KIND[l.kind][0]}</span><div><b>L${u.level}-${u.no}　${esc(u.title)}</b><div class="meta"><span>⏱ ${lessonMin(l)}分</span><span>⚡ ${lessonXp(l)}</span></div></div></div>
@@ -974,7 +974,7 @@ function openDeck(did) {
     <div class="row" style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" id="b-learn" style="flex:1">覚える（10語ずつ）</button><button class="btn ghost" id="b-test" style="flex:1">テスト</button></div>
     <div class="card">${d.items.map(id => { const it = item(id), e = item(it.ex); const b = S.srs[id]?.[0] || 0;
       return `<div class="li">${spkBtn(id)}<div class="grow">${teH(it)} <span class="muted">${roH(it)}</span><small><b style="color:var(--ink)">${esc(it.ja)}</b>${it.pos ? "　" + it.pos : ""}</small>
-        ${e ? `<small style="margin-top:4px"><span class="te" style="font-size:15px;color:var(--ink)">${e.th}</span>　${esc(e.ja)}</small>` : ""}</div>${spkBtn(it.ex)}<span class="muted" style="width:18px">${b >= 4 ? "◎" : b >= 2 ? "○" : b ? "△" : ""}</span></div>`; }).join("")}</div>`;
+        ${e ? `<small style="margin-top:4px"><span class="te" style="font-size:15px;color:var(--ink)">${e.th}</span> <span class="ro">${e.rh}</span>　${esc(e.ja)}</small>` : ""}</div>${spkBtn(it.ex)}<span class="muted" style="width:18px">${b >= 4 ? "◎" : b >= 2 ? "○" : b ? "△" : ""}</span></div>`; }).join("")}</div>`;
   $("#back").onclick = () => render();
   $("#b-learn").onclick = () => {
     const fresh = d.items.filter(id => !S.srs[id]); const ids = (fresh.length ? fresh : shuffle(d.items)).slice(0, 10);
@@ -1184,7 +1184,7 @@ const RENDER_EX = {
   intro(e) {
     const it = item(e.id), ex = it.ex ? item(it.ex) : null;
     sessShell(`<div class="newtag">新しい単語</div><div class="intro pop">${spkBtn(e.id, "bigspk")}${teH(it)}${roH(it)}<div class="ja">${esc(it.ja)}</div>
-      ${it.pos ? `<div class="note">${esc(it.pos)}</div>` : ""}${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}
+      ${it.pos ? `<div class="note">${esc(it.pos)}</div>` : ""}${it.note ? `<div class="note">${it.note}</div>` : ""}
       ${ex ? `<div class="exbox">${spkBtn(it.ex)}<div><span class="te">${ex.th}</span><br><span class="ro" style="font-size:12px">${ex.rh}</span><div style="font-size:14px">${esc(ex.ja)}</div></div></div>` : ""}
       <button class="slow" data-say="${e.id}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`,
       `<button class="btn" id="s-next">わかった</button>`);
@@ -1195,7 +1195,7 @@ const RENDER_EX = {
     const it = item(e.id);
     sessShell(`<div class="newtag">新しい文</div><div class="intro pop">${spkBtn(e.id, "bigspk")}
       <div class="gloss">${it.tiles.map(t => `<span><span class="te">${t[1]}</span><span class="ro">${t[2]}</span>${esc(t[3])}</span>`).join("")}</div>
-      <div class="ja">${esc(it.ja)}</div>${it.note ? `<div class="note">${esc(it.note)}</div>` : ""}
+      <div class="ja">${esc(it.ja)}</div>${it.note ? `<div class="note">${it.note}</div>` : ""}
       <button class="slow" data-say="${e.id}" data-slow="1" aria-label="ゆっくり">${I.turtle}</button></div>`,
       `<button class="btn" id="s-next">わかった</button>`);
     autoSay(e.id); learn(e.id);
@@ -1217,7 +1217,7 @@ const RENDER_EX = {
   },
   pairs(e) {
     const ids = e.ids; const L = shuffle(ids), R = shuffle(ids);
-    sessShell(`<div class="qtitle">ペアを見つけよう</div><div class="pairs">${L.map((id, i) => `<button class="opt" data-l="${id}">${teH(item(id))}</button><button class="opt" data-r="${R[i]}">${esc(item(R[i]).ja)}</button>`).join("")}</div>`,
+    sessShell(`<div class="qtitle">ペアを見つけよう</div><div class="pairs">${L.map((id, i) => `<button class="opt" data-l="${id}">${teH(item(id))}<br>${roH(item(id))}</button><button class="opt" data-r="${R[i]}">${esc(item(R[i]).ja)}</button>`).join("")}</div>`,
       `<button class="btn" id="s-next" disabled>つづける</button>`);
     let a = null, b = null, left = ids.length, mistakes = 0;
     const tryMatch = () => {
