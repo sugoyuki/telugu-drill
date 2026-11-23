@@ -726,6 +726,7 @@ function streak() {
 }
 
 /* ============ 共通の部品 ============ */
+const isMe = w => w === "あなた" || w === "You";
 const teH = it => `<span class="te">${it.th}</span>`;
 const rubyH = it => it.tiles ? `<span class="rubyline">${it.tiles.map(t => `<ruby class="te">${t[1]}<rt class="ro">${t[2]}</rt></ruby>`).join(" ")}</span>` : `<span class="te">${it.th}</span><br><span class="ro">${it.rh}</span>`;
 const roH = it => `<span class="ro">${it.rh}</span>`;
@@ -956,7 +957,7 @@ function vWords(v) {
   const lvAll = C.decks.filter(d => d.lv === wordLv).flatMap(d => d.items);
   const known = lvAll.filter(id => (S.srs[id]?.[0] || 0) >= 3).length;
   v.innerHTML = `<h1 class="vt">単語帳</h1>
-    <div class="seg">${[1, 2, 3].map(l => `<button data-lv="${l}" class="${wordLv === l ? "on" : ""}">${["", "入門", "初級", "中級"][l]}</button>`).join("")}</div>
+    <div class="seg">${[1, 2, 3, 4].map(l => `<button data-lv="${l}" class="${wordLv === l ? "on" : ""}">${["", "入門", "初級", "中級", "上級"][l]}</button>`).join("")}</div>
     <div class="card"><div class="muted">レベル${wordLv}：${lvAll.length}語中 ${known}語を覚えました</div><div class="prog"><i style="width:${lvAll.length ? known / lvAll.length * 100 : 0}%"></i></div></div>
     ${decks.map(d => {
       const ks = d.items.map(id => { const b = S.srs[id]?.[0] || 0; return b >= 4 ? "k3" : b >= 2 ? "k2" : b >= 1 ? "k1" : ""; });
@@ -1097,7 +1098,7 @@ function dialogueExercises(l) {
   const ex = [{ t: "dshow", l }];
   l.items.forEach(id => {
     const it = item(id);
-    if (it.who === "あなた" && it.p.split(" ").length <= 10) ex.push({ t: "dbuild", id, l });
+    if (isMe(it.who) && it.p.split(" ").length <= 10) ex.push({ t: "dbuild", id, l });
     else ex.push({ t: "smcq", id, pool: l.items.length >= 4 ? l.items : poolFor(id), listen: true });
   });
   return ex;
@@ -1236,7 +1237,7 @@ const RENDER_EX = {
   dshow(e) {
     const l = e.l;
     sessShell(`<div class="qtitle">${esc(l.title || "会話")}</div><div class="qhint">${esc(l.scene || "")}</div>
-      <div class="dlg">${l.items.map(id => { const it = item(id); return `<div class="bub ${it.who === "あなた" ? "me" : ""}" data-say="${id}"><div class="who">${esc(it.who)}</div>${teH(it)}<br>${roH(it)}<div class="ja">${esc(it.ja)}</div></div>`; }).join("")}</div>`,
+      <div class="dlg">${l.items.map(id => { const it = item(id); return `<div class="bub ${isMe(it.who) ? "me" : ""}" data-say="${id}"><div class="who">${esc(it.who)}</div>${teH(it)}<br>${roH(it)}<div class="ja">${esc(it.ja)}</div></div>`; }).join("")}</div>`,
       `<div style="display:flex;gap:10px"><button class="btn ghost" id="s-all" style="flex:1">${I.spk.replace("<svg", '<svg style="width:18px;height:18px;vertical-align:-3px"')} 全部聞く</button><button class="btn" id="s-next" style="flex:1">練習する</button></div>`);
     $("#s-next").onclick = nextEx;
     $("#s-all").onclick = async () => { for (const id of l.items) { const b = $(`.bub[data-say="${id}"]`); b && b.scrollIntoView({ block: "center", behavior: "smooth" }); if (!(await Audio_.play(id))) break; await new Promise(r => setTimeout(r, 450)); } };
