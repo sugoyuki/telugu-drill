@@ -1370,6 +1370,7 @@ function buildEx(e, listenOnly, title) {
 }
 
 /* ---- 問題集の問題 ---- */
+const wbRo = w => C.wbr && C.wbr[w] ? `<span class="ro">${esc(C.wbr[w])}</span>` : "";
 function wbEx(e) {
   const q = e.q, ai = q.ai ? item(q.ai) : null, qi = q.qi ? item(q.qi) : null;
   const head = `<div class="qhint">${esc(q.ins || "")}</div>`;
@@ -1379,7 +1380,7 @@ function wbEx(e) {
   const done = ok => {
     if (!ok) S.miss["wb:" + e.key] = (S.miss["wb:" + e.key] || 0) + 1;
     scoreEx(e, ok, null);
-    answerFoot(ok, e, `${ai ? `<div>${teH(ai)}</div><div>${roH(ai)}</div>` : ""}${q.a ? `<small>${esc(q.a)}</small>` : ""}`);
+    answerFoot(ok, e, `${ai ? `<div>${teH(ai)}</div><div>${roH(ai)}</div>` : ""}${q.a ? `<small>${q.ah || esc(q.a)}</small>` : ""}`);
     if (q.ai) Audio_.play(q.ai);
   };
   if (q.ch && q.ans != null) {
@@ -1399,11 +1400,11 @@ function wbEx(e) {
     const have = new Set(tiles.map(t => t.p)), extra = [];
     for (const x of shuffle(fake.pool)) { const w = shuffle(item(x).p.split(/\s+/)).find(w => !have.has(w) && w.length > 1); if (w) { extra.push({ p: w }); have.add(w); } if (extra.length >= 3) break; }
     const bank = shuffle(tiles.concat(extra)).map((t, i) => ({ ...t, i }));
-    sessShell(`${head}${qAudio}${qText}<div class="answer-area" id="ans"></div><div class="bank" id="bank">${bank.map(t => `<button class="tile" data-i="${t.i}"><span class="te">${esc(t.p)}</span></button>`).join("")}</div>`, checkFoot());
+    sessShell(`${head}${qAudio}${qText}<div class="answer-area" id="ans"></div><div class="bank" id="bank">${bank.map(t => `<button class="tile" data-i="${t.i}"><span class="te">${esc(t.p)}</span>${wbRo(t.p)}</button>`).join("")}</div>`, checkFoot());
     if (qi) autoSay(q.qi);
     const picked = [];
     const redraw = () => {
-      $("#ans").innerHTML = picked.map((i, k) => `<button class="tile" data-k="${k}"><span class="te">${esc(bank[i].p)}</span></button>`).join("");
+      $("#ans").innerHTML = picked.map((i, k) => `<button class="tile" data-k="${k}"><span class="te">${esc(bank[i].p)}</span>${wbRo(bank[i].p)}</button>`).join("");
       document.querySelectorAll("#bank .tile").forEach(b => b.classList.toggle("used", picked.includes(+b.dataset.i)));
       document.querySelectorAll("#ans .tile").forEach(b => b.onclick = () => { picked.splice(+b.dataset.k, 1); redraw(); });
       $("#s-check").disabled = !picked.length;
